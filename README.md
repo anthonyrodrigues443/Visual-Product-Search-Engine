@@ -27,16 +27,20 @@
 
 ## Current Status
 
-**Phase 1 complete** — ResNet50 baseline established at R@1=30.7%.
+**Phase 1 complete** — ResNet50 baseline + color palette features + EfficientNet-B0 established.
 
 | Model | R@1 | R@5 | R@10 | R@20 | Dim | Notes |
 |-------|-----|-----|------|------|-----|-------|
-| **ResNet50 (ImageNet V2)** | **30.7%** | **49.3%** | **59.0%** | **69.1%** | 2048 | Baseline, no fine-tuning |
+| ResNet50 (ImageNet V2) | 30.7% | 49.3% | 59.0% | 69.1% | 2048 | Anthony baseline, no fine-tuning |
+| EfficientNet-B0 (ImageNet) | 36.7% | 59.9% | 68.6% | 77.6% | 1280 | Mark — 5x smaller, beats ResNet50 |
+| Color-only 48D (histogram) | 33.8% | 52.4% | 61.3% | 70.7% | 48 | Mark — 48 numbers beat 2048D CNN |
+| EfficientNet-B0 + Color (aug) | 38.3% | 61.2% | 69.4% | 78.5% | 1304 | Mark — best embedding approach |
+| **ResNet50 + color rerank alpha=0.5** | **40.5%** | **59.3%** | **65.7%** | **69.1%** | — | **Mark — best overall, no retraining** |
 | FashionNet (published) | 53.0% | — | 73.0% | 76.4% | — | Fine-tuned, 2016 |
 | CLIP ViT-B/32 (published) | ~78% | — | ~93% | ~95% | 512 | Zero-shot, 2021 |
 | DINOv2 ViT-B/14 (published) | ~82% | — | ~95% | ~97% | 768 | Zero-shot, 2023 |
 
-**Best model so far:** ResNet50 (ImageNet V2) — R@1=30.7%
+**Best model so far:** ResNet50 + color re-ranking (alpha=0.5) — R@1=40.5% (+9.8pp vs baseline, no retraining)
 
 ---
 
@@ -44,17 +48,21 @@
 
 1. **ResNet50 baseline confirms published expectations.** 30.7% Recall@1 without fine-tuning, in the ~30–40% range expected for generic ImageNet features on fashion retrieval. Fine-tuned models reach 53–82%.
 
-2. **Jackets are 2.8× harder than shirts.** R@1=13.9% vs 38.8%. Visually diverse categories (bomber vs blazer vs parka) need more discriminative features than uniform categories (shirts with distinctive prints).
+2. **EfficientNet-B0 beats ResNet50 with 5x smaller weights.** R@1=36.7% vs 30.7% (+6pp) using a 20MB model vs 98MB. Compound scaling outperforms plain depth-scaling for fine-grained visual retrieval.
 
-3. **Poor similarity separation (0.048) is the bottleneck.** Correct matches score 0.786 cosine similarity; incorrect score 0.738. The distributions overlap heavily — fine-tuning or metric learning must widen this gap.
+3. **48D color histogram alone beats 2048D ResNet50.** Color-only retrieval: R@1=33.8%. Fashion consumers search by color first — CNN features optimized for ImageNet classification don't model color explicitly enough.
 
-4. **R@1→R@20 improvement of +38pp shows promise.** The correct product is "nearby" in embedding space; a better model should promote it to the top result.
+4. **Color re-ranking (alpha=0.5) gives +9.8pp with zero retraining.** Blending CNN and color scores at inference time is more effective than concatenating them in the embedding. The correct product is already in the top-20 — re-ranking surfaces it.
+
+5. **Jackets are 2.8× harder than shirts.** R@1=13.9% vs 38.8%. Visually diverse categories (bomber vs blazer vs parka) need more discriminative features than uniform categories (shirts with distinctive prints).
+
+6. **Poor similarity separation (0.048) is the core bottleneck.** Correct matches score 0.786 cosine similarity; incorrect score 0.738. The distributions overlap heavily — fine-tuning or metric learning must widen this gap.
 
 ---
 
 ## Models Compared
 
-**1 model, 3 experiment variants** across Phase 1.
+**6 approaches** across Phase 1 (Anthony: ResNet50 baseline; Mark: EfficientNet-B0, color features, augmented embeddings, color re-ranking).
 
 ---
 

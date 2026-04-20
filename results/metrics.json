@@ -55,5 +55,60 @@
     "correct_mean": 0.7862306394207645,
     "incorrect_mean": 0.737771471766769,
     "separation": 0.048459167653995494
+  },
+  "phase1_mark": {
+    "description": "Mark Phase 1 complementary: color palette features + EfficientNet-B0",
+    "date": "2026-04-20",
+    "eval_products": 300,
+    "eval_gallery": 300,
+    "eval_queries": 1027,
+    "color_feature_dim": 48,
+    "color_feature_description": "RGB histogram (24D) + HSV histogram (24D)",
+    "color_weight": 0.3,
+    "experiments": {
+      "efficientnet_b0": {
+        "recall@1": 0.3671,
+        "recall@5": 0.5988,
+        "recall@10": 0.6855,
+        "recall@20": 0.776
+      },
+      "color_only_48d": {
+        "recall@1": 0.3379,
+        "recall@5": 0.5239,
+        "recall@10": 0.6125,
+        "recall@20": 0.7069
+      },
+      "resnet50_color_augmented": {
+        "recall@1": 0.3213,
+        "recall@5": 0.5063,
+        "recall@10": 0.6056,
+        "recall@20": 0.7059
+      },
+      "efficientnet_b0_color": {
+        "recall@1": 0.3827,
+        "recall@5": 0.6115,
+        "recall@10": 0.6943,
+        "recall@20": 0.7848
+      },
+      "resnet50_rerank_alpha07": {
+        "recall@1": 0.3622,
+        "recall@5": 0.557,
+        "recall@10": 0.6397,
+        "recall@20": 0.6913
+      },
+      "resnet50_rerank_alpha05": {
+        "recall@1": 0.4051,
+        "recall@5": 0.593,
+        "recall@10": 0.6573,
+        "recall@20": 0.6913
+      }
+    },
+    "best_result": {
+      "approach": "resnet50_rerank_alpha05",
+      "recall@1": 0.4051,
+      "recall@10": 0.6573,
+      "vs_baseline_r1_delta": 0.0984
+    },
+    "headline_finding": "EfficientNet-B0 (20MB) beats ResNet50 (98MB) by +6pp R@1. 48D color histogram alone beats 2048D ResNet50 embedding. Color re-ranking (alpha=0.5, no retraining) gives best result: R@1=0.4051 (+9.8pp)."
   }
 }
