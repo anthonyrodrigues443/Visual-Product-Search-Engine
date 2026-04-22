@@ -27,44 +27,45 @@
 
 ## Current Status
 
-**Phase 2 complete** — foundation-model backbones (CLIP, DINOv2) head-to-head vs Phase 1 CNNs. CLIP + Phase 1's color-rerank trick is the new winner at R@1=57.6%.
+**Phase 3 complete** — Feature engineering (text metadata, spatial color) + retrieval architecture (category-conditioned search) established as dominant strategies.
 
-| Model | R@1 | R@5 | R@10 | R@20 | Dim | Phase | Notes |
-|-------|-----|-----|------|------|-----|-------|-------|
-| **CLIP ViT-B/32 + color rerank α=0.5** | **57.6%** | **74.7%** | **78.7%** | **80.7%** | — | P2 | **Mark — new best, stacks Phase 1 trick on CLIP** |
-| CLIP ViT-B/32 (bare) | 48.0% | 67.2% | 74.0% | 80.7% | 512 | P2 | Mark — foundation model baseline |
-| ResNet50 + color rerank α=0.5 | 40.5% | 59.3% | 65.7% | 69.1% | — | P1 | Mark P1 best — domain feature trick on CNN |
-| EfficientNet-B0 + color (aug) | 38.3% | 61.2% | 69.4% | 78.5% | 1304 | P1 | Mark — best embedding approach in Phase 1 |
-| EfficientNet-B0 (ImageNet) | 36.7% | 59.9% | 68.6% | 77.6% | 1280 | P1 | Mark — 5× smaller beats ResNet50 |
-| Color-only 48D (histogram) | 33.8% | 52.4% | 61.3% | 70.7% | 48 | P1 | Mark — 48 numbers beat 2048D CNN |
-| DINOv2-S + color rerank α=0.5 | 32.8% | 64.2% | 73.0% | 77.0% | — | P2 | Mark — SSL catches up at R@10 but lags at R@1 |
-| ResNet50 (ImageNet V2) | 30.7% | 49.3% | 59.0% | 69.1% | 2048 | P1 | Anthony baseline, no fine-tuning |
-| DINOv2 ViT-S/14 (bare) | 24.3% | 54.1% | 66.5% | 77.0% | 384 | P2 | Mark — CLS-token self-supervised loses at R@1 |
-| FashionNet (published) | 53.0% | — | 73.0% | 76.4% | — | ref | Fine-tuned, 2016 |
+| Model | R@1 | R@5 | R@10 | R@20 | Dim | Notes |
+|-------|-----|-----|------|------|-----|-------|
+| ResNet50 (ImageNet V2) | 30.7% | 49.3% | 59.0% | 69.1% | 2048 | Anthony baseline, no fine-tuning |
+| EfficientNet-B0 (ImageNet) | 36.7% | 59.9% | 68.6% | 77.6% | 1280 | Mark — 5x smaller, beats ResNet50 |
+| Color-only 48D (histogram) | 33.8% | 52.4% | 61.3% | 70.7% | 48 | Mark — 48 numbers beat 2048D CNN |
+| EfficientNet-B0 + Color (aug) | 38.3% | 61.2% | 69.4% | 78.5% | 1304 | Mark — best embedding approach |
+| ResNet50 + color rerank alpha=0.5 | 40.5% | 59.3% | 65.7% | 69.1% | — | Mark — best Phase 1, no retraining |
+| CLIP ViT-B/32 (bare) | 48.0% | 67.2% | 74.0% | 80.7% | 512 | Mark Phase 2 — foundation backbone baseline |
+| CLIP ViT-B/32 + color rerank α=0.5 | 57.6% | 74.7% | 78.7% | 80.7% | — | Mark Phase 2 — color trick stacks on CLIP |
+| CLIP ViT-L/14 + color rerank α=0.5 | 64.2% | 83.1% | 85.3% | 85.3% | — | Anthony Phase 2 champion |
+| CLIP ViT-L/14 + color+spatial+text | 67.5% | 85.6% | 87.2% | 91.0% | — | Anthony Phase 3 champion |
+| **CLIP B/32 + cat.filter + color (α=0.4)** | **68.3%** | **86.2%** | **91.3%** | **97.0%** | — | **Mark Phase 3 champion — best overall** |
+| FashionNet (published) | 53.0% | — | 73.0% | 76.4% | — | Fine-tuned, 2016 |
+| CLIP ViT-B/32 (published) | ~78% | — | ~93% | ~95% | 512 | Zero-shot, 2021 |
+| DINOv2 ViT-B/14 (published) | ~82% | — | ~95% | ~97% | 768 | Zero-shot, 2023 |
 
-**Best model so far (Phase 2):** CLIP ViT-B/32 + color rerank α=0.5 — R@1=57.6% (+27pp vs Anthony ResNet50 baseline, +17pp vs Phase 1 best, no retraining).
+**Best model so far:** CLIP B/32 + category filter + color reranking (alpha=0.4) — R@1=68.3%, R@20=97.0%
 
 ---
 
 ## Key Findings
 
-1. **ResNet50 baseline confirms published expectations.** 30.7% Recall@1 without fine-tuning, in the ~30–40% range expected for generic ImageNet features on fashion retrieval. Fine-tuned models reach 53–82%.
+1. **Text metadata alone beats CLIP visual embeddings.** Structured prompts ("a photo of black jackets") achieve R@1=60.2% — higher than CLIP ViT-L/14 visual features (55.3%). Same-product items share identical category+color metadata, making text a stronger retrieval signal than pixels.
 
-2. **EfficientNet-B0 beats ResNet50 with 5x smaller weights.** R@1=36.7% vs 30.7% (+6pp) using a 20MB model vs 98MB. Compound scaling outperforms plain depth-scaling for fine-grained visual retrieval.
+2. **Category-conditioned retrieval adds +8.9pp R@1 with zero new features.** Restricting gallery search to the correct category (architectural change, no embedding changes) is as impactful as adding complex feature engineering. Cross-category confusion is a major unforced error in standard retrieval.
 
-3. **48D color histogram alone beats 2048D ResNet50.** Color-only retrieval: R@1=33.8%. Fashion consumers search by color first — CNN features optimized for ImageNet classification don't model color explicitly enough.
+3. **LBP and HOG are fully redundant with CLIP ViT.** Hand-crafted texture and shape descriptors add ≤0.6pp on top of CLIP — the vision transformer already captures this information. Traditional CV features are a dead end when paired with foundation model backbones.
 
-4. **Color re-ranking (alpha=0.5) gives +9.8pp with zero retraining.** Blending CNN and color scores at inference time is more effective than concatenating them in the embedding. The correct product is already in the top-20 — re-ranking surfaces it.
+4. **48D color histogram alone beats 2048D ResNet50, and remains efficient at Phase 3.** Fashion retrieval is fundamentally a color-matching problem at the fine-grained level. Color is the highest-signal-per-dimension feature across all phases.
 
-5. **Jackets are 2.8× harder than shirts.** R@1=13.9% vs 38.8%. Visually diverse categories (bomber vs blazer vs parka) need more discriminative features than uniform categories (shirts with distinctive prints).
-
-6. **Poor similarity separation (0.048) is the core bottleneck.** Correct matches score 0.786 cosine similarity; incorrect score 0.738. The distributions overlap heavily — fine-tuning or metric learning must widen this gap.
+5. **Jackets are 2.8× harder than shirts — and category difficulty persists across all models.** R@1=13.9% (Phase 1) → ~53% (Phase 3) for jackets, but the gap vs shirts remains. Intra-category style diversity (bomber vs blazer vs parka) sets a ceiling that embedding-only methods can't easily cross.
 
 ---
 
 ## Models Compared
 
-**6 approaches** across Phase 1 (Anthony: ResNet50 baseline; Mark: EfficientNet-B0, color features, augmented embeddings, color re-ranking).
+**25+ configurations** across Phases 1–3 (Phase 1: ResNet50, EfficientNet, color features; Phase 2: CLIP ViT-B/32, ViT-L/14, DINOv2, color reranking; Phase 3: spatial color, LBP, HOG, text metadata, category-conditioned retrieval, K-means color, DINOv2 patch pooling, GeM pooling, feature ablation).
 
 ---
 
@@ -131,7 +132,7 @@ Product image (52,591 DeepFashion In-Shop images)
 <td valign="top" width="38%">
 
 **Experiment 1 (bare backbones):** Same 300/1,027 eval slice as Phase 1. Head-to-head of EfficientNet-B0 (ImageNet CNN), CLIP ViT-B/32 (OpenAI text-image), DINOv2 ViT-S/14 (Meta self-supervised). CLIP wins bare at R@1=48.0%; DINOv2 CLS-token finishes LAST at R@1=24.3% — reversing the SSL-wins-retrieval expectation from Oquab 2023 on fashion data.<br><br>
-**Experiment 2 (Phase 1 trick on Phase 2 backbones):** Applied Mark Phase 1's α=0.5 color-rerank over the top-20 candidates. CLIP + color rerank → **R@1=57.6%** — new best, +17pp over Phase 1's best system.
+**Experiment 2 (Phase 1 trick on Phase 2 backbones):** Applied Mark Phase 1's α=0.5 color-rerank over the top-20 candidates. CLIP + color rerank → **R@1=57.6%** — new Phase 2 best, +17pp over Phase 1's best system.
 
 </td>
 <td align="center" width="24%">
@@ -145,6 +146,32 @@ Product image (52,591 DeepFashion In-Shop images)
 **Surprise:** Mark Phase 1's color-rerank trick (+9.8pp on ResNet50) **stacks on foundation models** — +9.6pp on CLIP, +8.5pp on DINOv2. Three different embedding spaces, same lift. Strong evidence that CNN/ViT/SSL backbones all under-represent color as a retrieval feature.<br><br>
 **Research:** Radford 2021 (CLIP), Oquab 2023 (DINOv2), Marqo e-commerce blog 2024. Detailed references in [reports/day2_phase2_mark_report.md](reports/day2_phase2_mark_report.md).<br><br>
 **Best Model So Far:** CLIP ViT-B/32 + color rerank α=0.5 — R@1=57.6%, R@10=78.7%
+
+</td>
+</tr>
+</table>
+
+### Phase 3: Feature Engineering + Retrieval Architecture — 2026-04-22
+
+<table>
+<tr>
+<td valign="top" width="38%">
+
+**Feature Engineering:** Tested spatial color grid (192D), LBP texture (32D), HOG shape (144D), and CLIP text metadata across 11 fusion combinations on CLIP ViT-L/14. Champion: CLIP+color+spatial+text → R@1=67.5% (+12.2pp over bare CLIP). Headline result: text prompts alone (R@1=60.2%) beat CLIP visual embeddings (55.3%) — same-product items share identical category+color text, collapsing matching to metadata lookup.<br><br>
+**Retrieval Architecture:** Tested DINOv2 patch token pooling (mean, GeM), category-conditioned hard filtering, and K-means dominant color on CLIP B/32. Category filter alone: +8.9pp R@1 with zero features added (0.480→0.569). Champion with color reranking (alpha=0.4): R@1=68.3%, R@20=97.0% — the new overall leader despite using the smaller CLIP B/32 backbone.
+
+</td>
+<td align="center" width="24%">
+
+<img src="results/phase3_ablation.png" width="220">
+
+</td>
+<td valign="top" width="38%">
+
+**Combined Insight:** The two runs attacked orthogonal bottlenecks — Anthony asked "which features?" (LBP/HOG are dead, text is gold), Mark asked "how to search?" (category filter eliminates cross-category confusion). Neither alone reaches the combined ceiling: Anthony's text metadata (+13.7pp) and Mark's category filter (+8.9pp) are additive, not overlapping — Phase 4 should stack both.<br><br>
+**Surprise:** DINOv2 patch mean-pooling is *worse* than CLS-token (R@1=15.0% vs 24.3%), the opposite of what dense-task literature predicts. On white-background product photos, ~150 background patches dilute the 100 foreground patches — CLS self-attention naturally upweights the product region. Background context, which enriches segmentation tasks, is pure noise for product retrieval.<br><br>
+**Research:** Radford et al., 2021 (CLIP, ICML) — cross-modal alignment means "a photo of red shorts" maps precisely to the region where red shorts cluster; Jing et al., 2015 (Pinterest, KDD) — category-first, rank-within-class is the production standard for visual search, explaining the +8.9pp from hard category filtering.<br><br>
+**Best Model So Far:** CLIP B/32 + category filter + color reranking (alpha=0.4) — R@1=68.3%, R@20=97.0%
 
 </td>
 </tr>

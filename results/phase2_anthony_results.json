@@ -1,0 +1,198 @@
+{
+  "phase2_anthony": {
+    "date": "2026-04-21",
+    "eval_products": 300,
+    "eval_gallery": 300,
+    "eval_queries": 1027,
+    "research_question": "Does training paradigm (supervised/self-supervised/vision-language) matter more than architecture for fashion retrieval?",
+    "models": {
+      "CLIP ViT-B/32": {
+        "paradigm": "vision-language",
+        "dim": 512,
+        "params_m": 88,
+        "extract_s": 42.8,
+        "ms_per_img": 32.2,
+        "R@1": 0.3934,
+        "R@5": 0.5833,
+        "R@10": 0.6582,
+        "R@20": 0.741,
+        "separation": -0.0228,
+        "corr_sim": 0.8809,
+        "inc_sim": 0.9037
+      },
+      "CLIP ViT-L/14": {
+        "paradigm": "vision-language",
+        "dim": 768,
+        "params_m": 304,
+        "extract_s": 657.2,
+        "ms_per_img": 495.3,
+        "R@1": 0.5531,
+        "R@5": 0.7478,
+        "R@10": 0.8053,
+        "R@20": 0.853,
+        "separation": -0.0013,
+        "corr_sim": 0.8999,
+        "inc_sim": 0.9011
+      },
+      "DINOv2 ViT-B/14": {
+        "paradigm": "self-supervised",
+        "dim": 768,
+        "params_m": 86,
+        "extract_s": 265.0,
+        "ms_per_img": 199.7,
+        "R@1": 0.2921,
+        "R@5": 0.5891,
+        "R@10": 0.704,
+        "R@20": 0.7858,
+        "separation": -0.1066,
+        "corr_sim": 0.6385,
+        "inc_sim": 0.7451
+      },
+      "ViT-B/16 (ImageNet)": {
+        "paradigm": "supervised-vit",
+        "dim": 768,
+        "params_m": 86,
+        "extract_s": 283.4,
+        "ms_per_img": 213.6,
+        "R@1": 0.3661,
+        "R@5": 0.5794,
+        "R@10": 0.6563,
+        "R@20": 0.7605,
+        "separation": -0.0578,
+        "corr_sim": 0.6585,
+        "inc_sim": 0.7164
+      },
+      "ConvNeXt-Tiny": {
+        "paradigm": "supervised-cnn",
+        "dim": 768,
+        "params_m": 29,
+        "extract_s": 196.9,
+        "ms_per_img": 148.4,
+        "R@1": 0.3544,
+        "R@5": 0.5774,
+        "R@10": 0.6524,
+        "R@20": 0.7595,
+        "separation": -0.0504,
+        "corr_sim": 0.7159,
+        "inc_sim": 0.7663
+      },
+      "CLIP ViT-L/14 + Color (a=0.7)": {
+        "paradigm": "hybrid",
+        "dim": 816,
+        "params_m": 304,
+        "R@1": 0.6203,
+        "R@5": 0.7936,
+        "R@10": 0.8335,
+        "R@20": 0.853
+      },
+      "CLIP ViT-L/14 + Color (a=0.5)": {
+        "paradigm": "hybrid",
+        "dim": 816,
+        "params_m": 304,
+        "R@1": 0.6417,
+        "R@5": 0.7916,
+        "R@10": 0.8306,
+        "R@20": 0.853
+      },
+      "CLIP ViT-L/14 + Color (a=0.3)": {
+        "paradigm": "hybrid",
+        "dim": 816,
+        "params_m": 304,
+        "R@1": 0.6183,
+        "R@5": 0.7741,
+        "R@10": 0.8306,
+        "R@20": 0.853
+      }
+    },
+    "per_category": {
+      "CLIP ViT-B/32": {
+        "denim": 0.3247,
+        "jackets": 0.3038,
+        "pants": 0.3958,
+        "shirts": 0.5289,
+        "shorts": 0.2785,
+        "suiting": 0.3333,
+        "sweaters": 0.4865,
+        "sweatshirts": 0.3543,
+        "tees": 0.4426
+      },
+      "CLIP ViT-L/14": {
+        "denim": 0.4416,
+        "jackets": 0.5949,
+        "pants": 0.5278,
+        "shirts": 0.7438,
+        "shorts": 0.4051,
+        "suiting": 0.6667,
+        "sweaters": 0.6351,
+        "sweatshirts": 0.5512,
+        "tees": 0.5656
+      },
+      "DINOv2 ViT-B/14": {
+        "denim": 0.3636,
+        "jackets": 0.3924,
+        "pants": 0.2847,
+        "shirts": 0.2149,
+        "shorts": 0.1835,
+        "suiting": 0.0,
+        "sweaters": 0.2297,
+        "sweatshirts": 0.2913,
+        "tees": 0.373
+      },
+      "ViT-B/16 (ImageNet)": {
+        "denim": 0.4026,
+        "jackets": 0.2911,
+        "pants": 0.4236,
+        "shirts": 0.4132,
+        "shorts": 0.2911,
+        "suiting": 0.3333,
+        "sweaters": 0.4324,
+        "sweatshirts": 0.2756,
+        "tees": 0.3975
+      },
+      "ConvNeXt-Tiny": {
+        "denim": 0.3896,
+        "jackets": 0.2785,
+        "pants": 0.4375,
+        "shirts": 0.3719,
+        "shorts": 0.2911,
+        "suiting": 1.0,
+        "sweaters": 0.3919,
+        "sweatshirts": 0.2756,
+        "tees": 0.373
+      },
+      "CLIP ViT-L/14 + Color (a=0.7)": {
+        "denim": 0.5714,
+        "jackets": 0.7215,
+        "pants": 0.5972,
+        "shirts": 0.8099,
+        "shorts": 0.4177,
+        "suiting": 1.0,
+        "sweaters": 0.7027,
+        "sweatshirts": 0.6063,
+        "tees": 0.6311
+      },
+      "CLIP ViT-L/14 + Color (a=0.5)": {
+        "denim": 0.5974,
+        "jackets": 0.7468,
+        "pants": 0.625,
+        "shirts": 0.7934,
+        "shorts": 0.4557,
+        "suiting": 1.0,
+        "sweaters": 0.7297,
+        "sweatshirts": 0.6378,
+        "tees": 0.6475
+      },
+      "CLIP ViT-L/14 + Color (a=0.3)": {
+        "denim": 0.5974,
+        "jackets": 0.7215,
+        "pants": 0.625,
+        "shirts": 0.7355,
+        "shorts": 0.443,
+        "suiting": 1.0,
+        "sweaters": 0.6757,
+        "sweatshirts": 0.5984,
+        "tees": 0.6311
+      }
+    }
+  }
+}

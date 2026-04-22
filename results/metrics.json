@@ -111,6 +111,202 @@
     },
     "headline_finding": "EfficientNet-B0 (20MB) beats ResNet50 (98MB) by +6pp R@1. 48D color histogram alone beats 2048D ResNet50 embedding. Color re-ranking (alpha=0.5, no retraining) gives best result: R@1=0.4051 (+9.8pp)."
   },
+  "phase2_anthony": {
+    "date": "2026-04-21",
+    "eval_products": 300,
+    "eval_gallery": 300,
+    "eval_queries": 1027,
+    "research_question": "Does training paradigm (supervised/self-supervised/vision-language) matter more than architecture for fashion retrieval?",
+    "models": {
+      "CLIP ViT-B/32": {
+        "paradigm": "vision-language",
+        "dim": 512,
+        "params_m": 88,
+        "extract_s": 42.8,
+        "ms_per_img": 32.2,
+        "R@1": 0.3934,
+        "R@5": 0.5833,
+        "R@10": 0.6582,
+        "R@20": 0.741,
+        "separation": -0.0228,
+        "corr_sim": 0.8809,
+        "inc_sim": 0.9037
+      },
+      "CLIP ViT-L/14": {
+        "paradigm": "vision-language",
+        "dim": 768,
+        "params_m": 304,
+        "extract_s": 657.2,
+        "ms_per_img": 495.3,
+        "R@1": 0.5531,
+        "R@5": 0.7478,
+        "R@10": 0.8053,
+        "R@20": 0.853,
+        "separation": -0.0013,
+        "corr_sim": 0.8999,
+        "inc_sim": 0.9011
+      },
+      "DINOv2 ViT-B/14": {
+        "paradigm": "self-supervised",
+        "dim": 768,
+        "params_m": 86,
+        "extract_s": 265.0,
+        "ms_per_img": 199.7,
+        "R@1": 0.2921,
+        "R@5": 0.5891,
+        "R@10": 0.704,
+        "R@20": 0.7858,
+        "separation": -0.1066,
+        "corr_sim": 0.6385,
+        "inc_sim": 0.7451
+      },
+      "ViT-B/16 (ImageNet)": {
+        "paradigm": "supervised-vit",
+        "dim": 768,
+        "params_m": 86,
+        "extract_s": 283.4,
+        "ms_per_img": 213.6,
+        "R@1": 0.3661,
+        "R@5": 0.5794,
+        "R@10": 0.6563,
+        "R@20": 0.7605,
+        "separation": -0.0578,
+        "corr_sim": 0.6585,
+        "inc_sim": 0.7164
+      },
+      "ConvNeXt-Tiny": {
+        "paradigm": "supervised-cnn",
+        "dim": 768,
+        "params_m": 29,
+        "extract_s": 196.9,
+        "ms_per_img": 148.4,
+        "R@1": 0.3544,
+        "R@5": 0.5774,
+        "R@10": 0.6524,
+        "R@20": 0.7595,
+        "separation": -0.0504,
+        "corr_sim": 0.7159,
+        "inc_sim": 0.7663
+      },
+      "CLIP ViT-L/14 + Color (a=0.7)": {
+        "paradigm": "hybrid",
+        "dim": 816,
+        "params_m": 304,
+        "R@1": 0.6203,
+        "R@5": 0.7936,
+        "R@10": 0.8335,
+        "R@20": 0.853
+      },
+      "CLIP ViT-L/14 + Color (a=0.5)": {
+        "paradigm": "hybrid",
+        "dim": 816,
+        "params_m": 304,
+        "R@1": 0.6417,
+        "R@5": 0.7916,
+        "R@10": 0.8306,
+        "R@20": 0.853
+      },
+      "CLIP ViT-L/14 + Color (a=0.3)": {
+        "paradigm": "hybrid",
+        "dim": 816,
+        "params_m": 304,
+        "R@1": 0.6183,
+        "R@5": 0.7741,
+        "R@10": 0.8306,
+        "R@20": 0.853
+      }
+    },
+    "per_category": {
+      "CLIP ViT-B/32": {
+        "denim": 0.3247,
+        "jackets": 0.3038,
+        "pants": 0.3958,
+        "shirts": 0.5289,
+        "shorts": 0.2785,
+        "suiting": 0.3333,
+        "sweaters": 0.4865,
+        "sweatshirts": 0.3543,
+        "tees": 0.4426
+      },
+      "CLIP ViT-L/14": {
+        "denim": 0.4416,
+        "jackets": 0.5949,
+        "pants": 0.5278,
+        "shirts": 0.7438,
+        "shorts": 0.4051,
+        "suiting": 0.6667,
+        "sweaters": 0.6351,
+        "sweatshirts": 0.5512,
+        "tees": 0.5656
+      },
+      "DINOv2 ViT-B/14": {
+        "denim": 0.3636,
+        "jackets": 0.3924,
+        "pants": 0.2847,
+        "shirts": 0.2149,
+        "shorts": 0.1835,
+        "suiting": 0.0,
+        "sweaters": 0.2297,
+        "sweatshirts": 0.2913,
+        "tees": 0.373
+      },
+      "ViT-B/16 (ImageNet)": {
+        "denim": 0.4026,
+        "jackets": 0.2911,
+        "pants": 0.4236,
+        "shirts": 0.4132,
+        "shorts": 0.2911,
+        "suiting": 0.3333,
+        "sweaters": 0.4324,
+        "sweatshirts": 0.2756,
+        "tees": 0.3975
+      },
+      "ConvNeXt-Tiny": {
+        "denim": 0.3896,
+        "jackets": 0.2785,
+        "pants": 0.4375,
+        "shirts": 0.3719,
+        "shorts": 0.2911,
+        "suiting": 1.0,
+        "sweaters": 0.3919,
+        "sweatshirts": 0.2756,
+        "tees": 0.373
+      },
+      "CLIP ViT-L/14 + Color (a=0.7)": {
+        "denim": 0.5714,
+        "jackets": 0.7215,
+        "pants": 0.5972,
+        "shirts": 0.8099,
+        "shorts": 0.4177,
+        "suiting": 1.0,
+        "sweaters": 0.7027,
+        "sweatshirts": 0.6063,
+        "tees": 0.6311
+      },
+      "CLIP ViT-L/14 + Color (a=0.5)": {
+        "denim": 0.5974,
+        "jackets": 0.7468,
+        "pants": 0.625,
+        "shirts": 0.7934,
+        "shorts": 0.4557,
+        "suiting": 1.0,
+        "sweaters": 0.7297,
+        "sweatshirts": 0.6378,
+        "tees": 0.6475
+      },
+      "CLIP ViT-L/14 + Color (a=0.3)": {
+        "denim": 0.5974,
+        "jackets": 0.7215,
+        "pants": 0.625,
+        "shirts": 0.7355,
+        "shorts": 0.443,
+        "suiting": 1.0,
+        "sweaters": 0.6757,
+        "sweatshirts": 0.5984,
+        "tees": 0.6311
+      }
+    }
+  },
   "phase2_mark": {
     "description": "Mark Phase 2: Foundation models (CLIP, DINOv2, ConvNeXt) vs CNN baselines",
     "date": "2026-04-21",
@@ -504,5 +700,287 @@
       "delta_vs_phase1_best": 0.1713
     },
     "headline_finding": "CLIP ViT-B/32 + color rerank (\u03b1=0.5) wins Phase 2 at R@1=0.5764 \u2014 a +0.270 lift over Anthony's ResNet50 baseline (0.307) and +0.171 over Mark's Phase 1 best (ResNet50 + color rerank, 0.405). Surprise: DINOv2 (self-supervised ViT) UNDERPERFORMS CLIP by 0.237 R@1 \u2014 contradicting the common belief that self-supervised visual features beat text-aligned ones on image\u2192image retrieval. CLS-token DINOv2 clusters products correctly (R@10=0.665) but fails to discriminate the top-1 match. Mark's Phase 1 color-rerank trick STACKS on top of CLIP (+0.096 R@1), validating that explicit color signal is still the missing piece even with a 400M-pair foundation model."
+  },
+  "phase3_anthony": {
+    "date": "2026-04-22",
+    "eval_products": 300,
+    "eval_gallery": 300,
+    "eval_queries": 1027,
+    "research_question": "Which domain features complement CLIP ViT-L/14? Is the bottleneck the backbone or the features?",
+    "clip_baseline": {
+      "R@1": 0.5531,
+      "R@5": 0.7478,
+      "R@10": 0.8053,
+      "R@20": 0.853
+    },
+    "standalone_features": {
+      "spatial_color_192D": {
+        "R@1": 0.3408,
+        "R@5": 0.4898,
+        "R@10": 0.5686,
+        "R@20": 0.6446
+      },
+      "lbp_texture": {
+        "R@1": 0.0633,
+        "R@5": 0.1665,
+        "R@10": 0.2288,
+        "R@20": 0.3233
+      },
+      "hog_shape_324D": {
+        "R@1": 0.0818,
+        "R@5": 0.187,
+        "R@10": 0.2483,
+        "R@20": 0.3262
+      },
+      "text_prompt": {
+        "R@1": 0.6018,
+        "R@5": 0.9572,
+        "R@10": 1.0,
+        "R@20": 1.0
+      },
+      "color48D": {
+        "R@1": 0.3379,
+        "R@5": 0.5239,
+        "R@10": 0.6125,
+        "R@20": 0.7069
+      }
+    },
+    "clip_plus_single": {
+      "CLIP+color48": {
+        "R@1": 0.6134,
+        "R@5": 0.7887,
+        "R@10": 0.8364,
+        "R@20": 0.8812
+      },
+      "CLIP+spatial": {
+        "R@1": 0.6076,
+        "R@5": 0.778,
+        "R@10": 0.8238,
+        "R@20": 0.8724
+      },
+      "CLIP+lbp": {
+        "R@1": 0.556,
+        "R@5": 0.7498,
+        "R@10": 0.8062,
+        "R@20": 0.8539
+      },
+      "CLIP+hog": {
+        "R@1": 0.5589,
+        "R@5": 0.7429,
+        "R@10": 0.8053,
+        "R@20": 0.8539
+      },
+      "CLIP+text": {
+        "R@1": 0.6008,
+        "R@5": 0.7858,
+        "R@10": 0.8325,
+        "R@20": 0.8744
+      },
+      "CLIP+ALL": {
+        "R@1": 0.6738,
+        "R@5": 0.816,
+        "R@10": 0.8715,
+        "R@20": 0.9114
+      }
+    },
+    "clip_plus_multi": {
+      "CLIP+color+spatial": {
+        "R@1": 0.6319,
+        "R@5": 0.7975,
+        "R@10": 0.8442,
+        "R@20": 0.8929
+      },
+      "CLIP+color+spatial+lbp": {
+        "R@1": 0.6329,
+        "R@5": 0.7975,
+        "R@10": 0.8432,
+        "R@20": 0.8929
+      },
+      "CLIP+color+spatial+hog": {
+        "R@1": 0.6349,
+        "R@5": 0.7887,
+        "R@10": 0.8452,
+        "R@20": 0.89
+      },
+      "CLIP+color+spatial+text": {
+        "R@1": 0.6748,
+        "R@5": 0.8199,
+        "R@10": 0.8724,
+        "R@20": 0.9104
+      },
+      "CLIP+color+spatial+lbp+hog": {
+        "R@1": 0.6349,
+        "R@5": 0.7877,
+        "R@10": 0.8452,
+        "R@20": 0.8909
+      }
+    },
+    "best_combination": {
+      "name": "CLIP+color+spatial+text",
+      "metrics": {
+        "R@1": 0.6748,
+        "R@5": 0.8199,
+        "R@10": 0.8724,
+        "R@20": 0.9104
+      },
+      "delta_vs_clip": 0.1217,
+      "delta_vs_phase2": 0.0331
+    },
+    "per_category": {
+      "clip_baseline": {
+        "denim": 0.4416,
+        "jackets": 0.5949,
+        "pants": 0.5278,
+        "shirts": 0.7438,
+        "shorts": 0.4051,
+        "suiting": 0.6667,
+        "sweaters": 0.6351,
+        "sweatshirts": 0.5512,
+        "tees": 0.5656
+      },
+      "phase2_champion": {
+        "denim": 0.5974,
+        "jackets": 0.7468,
+        "pants": 0.625,
+        "shirts": 0.7934,
+        "shorts": 0.4557,
+        "suiting": 1.0,
+        "sweaters": 0.7297,
+        "sweatshirts": 0.6378,
+        "tees": 0.6475
+      },
+      "best_phase3": {
+        "denim": 0.6104,
+        "jackets": 0.7468,
+        "pants": 0.6458,
+        "shirts": 0.8595,
+        "shorts": 0.5063,
+        "suiting": 1.0,
+        "sweaters": 0.7973,
+        "sweatshirts": 0.6457,
+        "tees": 0.6803
+      }
+    },
+    "feature_dimensions": {
+      "clip": 768,
+      "color48": 48,
+      "spatial": 192,
+      "lbp": 32,
+      "hog": 144,
+      "text": 768
+    },
+    "extraction_times": {
+      "clip": 637.2,
+      "spatial": 5.5,
+      "lbp": 1.1,
+      "hog": 0.9,
+      "text": 51.9
+    }
+  },
+  "phase3_mark": {
+    "date": "2026-04-22",
+    "eval_products": 300,
+    "eval_gallery": 300,
+    "eval_queries": 1027,
+    "research_question": "Is the bottleneck WHAT features we extract, or HOW we search?",
+    "headline_finding": "DINOv2 patch pooling HURTS retrieval vs CLS-token (0.150 vs 0.243). Category-conditioned retrieval gives +8.9pp on CLIP B/32 with ZERO new features. Architecture change > feature engineering for same-product retrieval.",
+    "experiments": {
+      "clip_baseline": {
+        "R@1": 0.4800389483933788,
+        "R@5": 0.6718597857838364,
+        "R@10": 0.7400194741966893,
+        "R@20": 0.807205452775073
+      },
+      "3M1_dino_cls": {
+        "R@1": 0.24342745861733203,
+        "R@5": 0.5413826679649465,
+        "R@10": 0.6650438169425511,
+        "R@20": 0.7702044790652386
+      },
+      "3M1_dino_patch_mean": {
+        "R@1": 0.14995131450827653,
+        "R@5": 0.42843232716650437,
+        "R@10": 0.5559883154819864,
+        "R@20": 0.688412852969815
+      },
+      "3M2_dino_patch_gem": {
+        "R@1": 0.19863680623174293,
+        "R@5": 0.48490749756572543,
+        "R@10": 0.5998052580331061,
+        "R@20": 0.7380720545277507
+      },
+      "3M3a_clip_cat": {
+        "R@1": 0.5686465433300877,
+        "R@5": 0.7799415774099319,
+        "R@10": 0.8325219084712756,
+        "R@20": 0.9065238558909445
+      },
+      "3M3b_clip_cat_color": {
+        "R@1": 0.682570593962999,
+        "R@5": 0.8617332035053554,
+        "R@10": 0.9133398247322297,
+        "R@20": 0.9698149951314509
+      },
+      "3M3c_clip_cat_kmeans": {
+        "R@1": 0.5150925024342746,
+        "R@5": 0.697176241480039,
+        "R@10": 0.7750730282375852,
+        "R@20": 0.8792599805258033
+      },
+      "3M4_color48": {
+        "R@1": 0.3505355404089581,
+        "R@5": 0.5394352482960078,
+        "R@10": 0.6231742940603701,
+        "R@20": 0.7244401168451802
+      },
+      "3M4_km3": {
+        "R@1": 0.2005842259006816,
+        "R@5": 0.37098344693281404,
+        "R@10": 0.436222005842259,
+        "R@20": 0.5316455696202531
+      },
+      "3M5a_dino_cat": {
+        "R@1": 0.29892891918208375,
+        "R@5": 0.6932814021421616,
+        "R@10": 0.8111002921129503,
+        "R@20": 0.9036027263875365
+      },
+      "3M5b_dino_cat_color": {
+        "R@1": 0.4595910418695229,
+        "R@5": 0.804284323271665,
+        "R@10": 0.8743914313534566,
+        "R@20": 0.9298928919182083
+      },
+      "3M5c_dino_gem_cat": {
+        "R@1": 0.34371957156767285,
+        "R@5": 0.7088607594936709,
+        "R@10": 0.8257059396299903,
+        "R@20": 0.8948393378773125
+      },
+      "3M6_uncond": {
+        "R@1": 0.5423563777994158,
+        "R@5": 0.7419668938656281,
+        "R@10": 0.7974683544303798,
+        "R@20": 0.8519961051606622
+      },
+      "3M6_cat": {
+        "R@1": 0.6426484907497566,
+        "R@5": 0.8198636806231743,
+        "R@10": 0.8734177215189873,
+        "R@20": 0.9298928919182083
+      }
+    },
+    "dino_patch_pooling_finding": {
+      "dino_cls_r1": 0.24342745861733203,
+      "dino_patch_mean_r1": 0.14995131450827653,
+      "dino_patch_gem_r1": 0.19863680623174293,
+      "conclusion": "Patch mean/GeM pooling WORSE than CLS-token for product retrieval. Reason: product photos have large white backgrounds; mean-pooling all patches dilutes discriminative foreground features with uninformative background patches. CLS-token's self-attention naturally upweights salient regions."
+    },
+    "category_filter_finding": {
+      "clip_r1": 0.4800389483933788,
+      "clip_cat_r1": 0.5686465433300877,
+      "lift_pp": 0.0886,
+      "conclusion": "Category-conditioned retrieval = +8.9pp R@1 with zero feature engineering."
+    }
   }
 }
