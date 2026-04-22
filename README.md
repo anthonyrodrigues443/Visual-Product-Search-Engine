@@ -36,6 +36,8 @@
 | Color-only 48D (histogram) | 33.8% | 52.4% | 61.3% | 70.7% | 48 | Mark — 48 numbers beat 2048D CNN |
 | EfficientNet-B0 + Color (aug) | 38.3% | 61.2% | 69.4% | 78.5% | 1304 | Mark — best embedding approach |
 | ResNet50 + color rerank alpha=0.5 | 40.5% | 59.3% | 65.7% | 69.1% | — | Mark — best Phase 1, no retraining |
+| CLIP ViT-B/32 (bare) | 48.0% | 67.2% | 74.0% | 80.7% | 512 | Mark Phase 2 — foundation backbone baseline |
+| CLIP ViT-B/32 + color rerank α=0.5 | 57.6% | 74.7% | 78.7% | 80.7% | — | Mark Phase 2 — color trick stacks on CLIP |
 | CLIP ViT-L/14 + color rerank α=0.5 | 64.2% | 83.1% | 85.3% | 85.3% | — | Anthony Phase 2 champion |
 | CLIP ViT-L/14 + color+spatial+text | 67.5% | 85.6% | 87.2% | 91.0% | — | Anthony Phase 3 champion |
 | **CLIP B/32 + cat.filter + color (α=0.4)** | **68.3%** | **86.2%** | **91.3%** | **97.0%** | — | **Mark Phase 3 champion — best overall** |
@@ -118,6 +120,32 @@ Product image (52,591 DeepFashion In-Shop images)
 **Surprise:** Jackets are 2.8× harder than shirts despite being a common category. The issue isn't data volume — it's intra-category visual variance (bomber vs blazer vs parka). Category difficulty correlates with style diversity, not sample size.<br><br>
 **Research:** Liu et al., 2016 — FashionNet fine-tuned on DeepFashion reaches R@1=53%, so we tried pretrained ResNet50 as a reproducible floor. arXiv 2503.13045, 2025 — no single metric learning loss dominates; contrastive, triplet, and InfoNCE each excel in different regimes, so Phase 2 will test CLIP and DINOv2 before committing to a fine-tuning strategy.<br><br>
 **Best Model So Far:** ResNet50 (ImageNet V2) — R@1=30.7%
+
+</td>
+</tr>
+</table>
+
+### Phase 2: Foundation Models vs CNNs — 2026-04-21
+
+<table>
+<tr>
+<td valign="top" width="38%">
+
+**Experiment 1 (bare backbones):** Same 300/1,027 eval slice as Phase 1. Head-to-head of EfficientNet-B0 (ImageNet CNN), CLIP ViT-B/32 (OpenAI text-image), DINOv2 ViT-S/14 (Meta self-supervised). CLIP wins bare at R@1=48.0%; DINOv2 CLS-token finishes LAST at R@1=24.3% — reversing the SSL-wins-retrieval expectation from Oquab 2023 on fashion data.<br><br>
+**Experiment 2 (Phase 1 trick on Phase 2 backbones):** Applied Mark Phase 1's α=0.5 color-rerank over the top-20 candidates. CLIP + color rerank → **R@1=57.6%** — new Phase 2 best, +17pp over Phase 1's best system.
+
+</td>
+<td align="center" width="24%">
+
+<img src="results/phase2_mark_paradigms.png" width="240">
+
+</td>
+<td valign="top" width="38%">
+
+**Combined Insight:** CLIP's caption-level supervision produces product-level discrimination that DINOv2's scene-level SSL lacks — visible as CLIP R@1=0.480 vs DINOv2 R@1=0.243 on the same embedding dimension. But both cluster the right *neighborhood* (both at R@20≈0.80) — suggesting the next gains come from reranking the top-20, not from bigger backbones.<br><br>
+**Surprise:** Mark Phase 1's color-rerank trick (+9.8pp on ResNet50) **stacks on foundation models** — +9.6pp on CLIP, +8.5pp on DINOv2. Three different embedding spaces, same lift. Strong evidence that CNN/ViT/SSL backbones all under-represent color as a retrieval feature.<br><br>
+**Research:** Radford 2021 (CLIP), Oquab 2023 (DINOv2), Marqo e-commerce blog 2024. Detailed references in [reports/day2_phase2_mark_report.md](reports/day2_phase2_mark_report.md).<br><br>
+**Best Model So Far:** CLIP ViT-B/32 + color rerank α=0.5 — R@1=57.6%, R@10=78.7%
 
 </td>
 </tr>
