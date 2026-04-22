@@ -96,6 +96,91 @@ def augment_embedding_with_color(
     return np.concatenate([cnn_normed, color_normed * color_weight]).astype(np.float32)
 
 
+def extract_spatial_color_grid(
+    img: Image.Image,
+    grid_rows: int = 4,
+    grid_cols: int = 4,
+    bins: int = 4,
+) -> np.ndarray:
+    """Spatial color layout: HSV histogram per image region.
+
+    Returns (grid_rows * grid_cols * bins * 3,) = 192D for 4×4 grid with 4 bins.
+    Captures WHERE colors appear — a dark-top/light-bottom dress differs from
+    a uniform one even when global histograms match.
+    """
+    img_small = img.resize((128, 128), Image.LANCZOS).convert("RGB")
+    pixels = np.array(img_small).astype(np.float32) / 255.0
+    h, w = pixels.shape[:2]
+    rh, rw = h // grid_rows, w // grid_cols
+
+    feats = []
+    for r in range(grid_rows):
+        for c in range(grid_cols):
+            region = pixels[r * rh : (r + 1) * rh, c * rw : (c + 1) * rw].reshape(-1, 3)
+            hsv = _rgb_to_hsv_vectorized(region)
+            hh, _ = np.histogram(hsv[:, 0], bins=bins, range=(0, 1))
+            sh, _ = np.histogram(hsv[:, 1], bins=bins, range=(0, 1))
+            vh, _ = np.histogram(hsv[:, 2], bins=bins, range=(0, 1))
+            region_feat = np.concatenate([hh, sh, vh]).astype(np.float32)
+            region_feat = region_feat / (region_feat.sum() + 1e-8)
+            feats.append(region_feat)
+
+    return np.concatenate(feats)
+
+
+def extract_lbp_fast(
+    img: Image.Image,
+    img_size: int = 64,
+) -> np.ndarray:
+    """Fast LBP via 8-neighbor array shifts. Two scales (R=1,2), 16 bins each → 32D."""
+    gray = np.array(img.resize((img_size, img_size), Image.LANCZOS).convert("L"), dtype=np.float32)
+    all_hists = []
+    for R in [1, 2]:
+        center = gray[R:-R, R:-R]
+        offsets = [(-R, 0), (-R, R), (0, R), (R, R), (R, 0), (R, -R), (0, -R), (-R, -R)]
+        lbp = np.zeros_like(center, dtype=np.uint8)
+        for bit_idx, (dy, dx) in enumerate(offsets):
+            ny, nx = R + dy, R + dx
+            neighbor = gray[ny : ny + center.shape[0], nx : nx + center.shape[1]]
+            lbp += ((neighbor >= center).astype(np.uint8)) << bit_idx
+        hist, _ = np.histogram(lbp.ravel(), bins=16, range=(0, 256))
+        hist = hist.astype(np.float32)
+        hist = hist / (hist.sum() + 1e-8)
+        all_hists.append(hist)
+    return np.concatenate(all_hists)
+
+
+def extract_hog_fast(
+    img: Image.Image,
+    cell_size: int = 16,
+    n_bins: int = 9,
+    img_size: int = 64,
+) -> np.ndarray:
+    """Fast HOG with vectorized bin assignment. 4×4 cells × 9 bins = 144D."""
+    gray = np.array(img.resize((img_size, img_size), Image.LANCZOS).convert("L"), dtype=np.float32)
+    gx = np.zeros_like(gray)
+    gy = np.zeros_like(gray)
+    gx[:, 1:-1] = gray[:, 2:] - gray[:, :-2]
+    gy[1:-1, :] = gray[:-2, :] - gray[2:, :]
+    magnitude = np.sqrt(gx**2 + gy**2)
+    orientation = np.arctan2(gy, gx) * 180 / np.pi
+    orientation[orientation < 0] += 180
+    n_cells_y, n_cells_x = gray.shape[0] // cell_size, gray.shape[1] // cell_size
+    bin_width = 180.0 / n_bins
+    bins = np.clip((orientation / bin_width).astype(np.int32), 0, n_bins - 1)
+    hog_feats = np.zeros(n_cells_y * n_cells_x * n_bins, dtype=np.float32)
+    for cy in range(n_cells_y):
+        for cx in range(n_cells_x):
+            y0, y1 = cy * cell_size, (cy + 1) * cell_size
+            x0, x1 = cx * cell_size, (cx + 1) * cell_size
+            hist = np.zeros(n_bins, dtype=np.float32)
+            np.add.at(hist, bins[y0:y1, x0:x1].ravel(), magnitude[y0:y1, x0:x1].ravel())
+            offset = (cy * n_cells_x + cx) * n_bins
+            hog_feats[offset : offset + n_bins] = hist
+    hog_feats = hog_feats / (np.linalg.norm(hog_feats) + 1e-8)
+    return hog_feats
+
+
 def color_rerank(
     query_color: np.ndarray,
     gallery_colors: np.ndarray,

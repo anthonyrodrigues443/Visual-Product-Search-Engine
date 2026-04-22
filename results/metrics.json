@@ -306,5 +306,181 @@
         "tees": 0.6311
       }
     }
+  },
+  "phase3_anthony": {
+    "date": "2026-04-22",
+    "eval_products": 300,
+    "eval_gallery": 300,
+    "eval_queries": 1027,
+    "research_question": "Which domain features complement CLIP ViT-L/14? Is the bottleneck the backbone or the features?",
+    "clip_baseline": {
+      "R@1": 0.5531,
+      "R@5": 0.7478,
+      "R@10": 0.8053,
+      "R@20": 0.853
+    },
+    "standalone_features": {
+      "spatial_color_192D": {
+        "R@1": 0.3408,
+        "R@5": 0.4898,
+        "R@10": 0.5686,
+        "R@20": 0.6446
+      },
+      "lbp_texture": {
+        "R@1": 0.0633,
+        "R@5": 0.1665,
+        "R@10": 0.2288,
+        "R@20": 0.3233
+      },
+      "hog_shape_324D": {
+        "R@1": 0.0818,
+        "R@5": 0.187,
+        "R@10": 0.2483,
+        "R@20": 0.3262
+      },
+      "text_prompt": {
+        "R@1": 0.6018,
+        "R@5": 0.9572,
+        "R@10": 1.0,
+        "R@20": 1.0
+      },
+      "color48D": {
+        "R@1": 0.3379,
+        "R@5": 0.5239,
+        "R@10": 0.6125,
+        "R@20": 0.7069
+      }
+    },
+    "clip_plus_single": {
+      "CLIP+color48": {
+        "R@1": 0.6134,
+        "R@5": 0.7887,
+        "R@10": 0.8364,
+        "R@20": 0.8812
+      },
+      "CLIP+spatial": {
+        "R@1": 0.6076,
+        "R@5": 0.778,
+        "R@10": 0.8238,
+        "R@20": 0.8724
+      },
+      "CLIP+lbp": {
+        "R@1": 0.556,
+        "R@5": 0.7498,
+        "R@10": 0.8062,
+        "R@20": 0.8539
+      },
+      "CLIP+hog": {
+        "R@1": 0.5589,
+        "R@5": 0.7429,
+        "R@10": 0.8053,
+        "R@20": 0.8539
+      },
+      "CLIP+text": {
+        "R@1": 0.6008,
+        "R@5": 0.7858,
+        "R@10": 0.8325,
+        "R@20": 0.8744
+      },
+      "CLIP+ALL": {
+        "R@1": 0.6738,
+        "R@5": 0.816,
+        "R@10": 0.8715,
+        "R@20": 0.9114
+      }
+    },
+    "clip_plus_multi": {
+      "CLIP+color+spatial": {
+        "R@1": 0.6319,
+        "R@5": 0.7975,
+        "R@10": 0.8442,
+        "R@20": 0.8929
+      },
+      "CLIP+color+spatial+lbp": {
+        "R@1": 0.6329,
+        "R@5": 0.7975,
+        "R@10": 0.8432,
+        "R@20": 0.8929
+      },
+      "CLIP+color+spatial+hog": {
+        "R@1": 0.6349,
+        "R@5": 0.7887,
+        "R@10": 0.8452,
+        "R@20": 0.89
+      },
+      "CLIP+color+spatial+text": {
+        "R@1": 0.6748,
+        "R@5": 0.8199,
+        "R@10": 0.8724,
+        "R@20": 0.9104
+      },
+      "CLIP+color+spatial+lbp+hog": {
+        "R@1": 0.6349,
+        "R@5": 0.7877,
+        "R@10": 0.8452,
+        "R@20": 0.8909
+      }
+    },
+    "best_combination": {
+      "name": "CLIP+color+spatial+text",
+      "metrics": {
+        "R@1": 0.6748,
+        "R@5": 0.8199,
+        "R@10": 0.8724,
+        "R@20": 0.9104
+      },
+      "delta_vs_clip": 0.1217,
+      "delta_vs_phase2": 0.0331
+    },
+    "per_category": {
+      "clip_baseline": {
+        "denim": 0.4416,
+        "jackets": 0.5949,
+        "pants": 0.5278,
+        "shirts": 0.7438,
+        "shorts": 0.4051,
+        "suiting": 0.6667,
+        "sweaters": 0.6351,
+        "sweatshirts": 0.5512,
+        "tees": 0.5656
+      },
+      "phase2_champion": {
+        "denim": 0.5974,
+        "jackets": 0.7468,
+        "pants": 0.625,
+        "shirts": 0.7934,
+        "shorts": 0.4557,
+        "suiting": 1.0,
+        "sweaters": 0.7297,
+        "sweatshirts": 0.6378,
+        "tees": 0.6475
+      },
+      "best_phase3": {
+        "denim": 0.6104,
+        "jackets": 0.7468,
+        "pants": 0.6458,
+        "shirts": 0.8595,
+        "shorts": 0.5063,
+        "suiting": 1.0,
+        "sweaters": 0.7973,
+        "sweatshirts": 0.6457,
+        "tees": 0.6803
+      }
+    },
+    "feature_dimensions": {
+      "clip": 768,
+      "color48": 48,
+      "spatial": 192,
+      "lbp": 32,
+      "hog": 144,
+      "text": 768
+    },
+    "extraction_times": {
+      "clip": 637.2,
+      "spatial": 5.5,
+      "lbp": 1.1,
+      "hog": 0.9,
+      "text": 51.9
+    }
   }
 }
