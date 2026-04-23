@@ -27,7 +27,7 @@
 
 ## Current Status
 
-**Phase 3 complete** — Feature engineering (text metadata, spatial color) + retrieval architecture (category-conditioned search) established as dominant strategies.
+**Phase 4 complete** — Hyperparameter tuning + error analysis. Per-category alpha oracle reaches R@1=69.5%. 85.3% of failures are close misses (correct product in top-5), pointing to a top-5 text-metadata reranker as the Phase 5 intervention.
 
 | Model | R@1 | R@5 | R@10 | R@20 | Dim | Notes |
 |-------|-----|-----|------|------|-----|-------|
@@ -45,7 +45,7 @@
 | CLIP ViT-B/32 (published) | ~78% | — | ~93% | ~95% | 512 | Zero-shot, 2021 |
 | DINOv2 ViT-B/14 (published) | ~82% | — | ~95% | ~97% | 768 | Zero-shot, 2023 |
 
-**Best model so far:** CLIP B/32 + category filter + color reranking (alpha=0.4) — R@1=68.3%, R@20=97.0%
+**Best model so far:** Per-category alpha oracle (CLIP B/32 + cat.filter + color, per-cat α) — R@1=69.5%, R@20=97.0% (oracle). Production champion: CLIP B/32 + cat.filter + color α=0.4 — R@1=68.3%
 
 ---
 
@@ -55,17 +55,17 @@
 
 2. **Category-conditioned retrieval adds +8.9pp R@1 with zero new features.** Restricting gallery search to the correct category (architectural change, no embedding changes) is as impactful as adding complex feature engineering. Cross-category confusion is a major unforced error in standard retrieval.
 
-3. **LBP and HOG are fully redundant with CLIP ViT.** Hand-crafted texture and shape descriptors add ≤0.6pp on top of CLIP — the vision transformer already captures this information. Traditional CV features are a dead end when paired with foundation model backbones.
+3. **85.3% of failures are close misses — the bottleneck is reranking, not recall.** In 85.3% of failed queries the correct product already sits in the top-5, with a median score gap of only 0.021. A targeted top-5 reranker (e.g. using text metadata) is the highest-leverage Phase 5 intervention.
 
 4. **48D color histogram alone beats 2048D ResNet50, and remains efficient at Phase 3.** Fashion retrieval is fundamentally a color-matching problem at the fine-grained level. Color is the highest-signal-per-dimension feature across all phases.
 
-5. **Jackets are 2.8× harder than shirts — and category difficulty persists across all models.** R@1=13.9% (Phase 1) → ~53% (Phase 3) for jackets, but the gap vs shirts remains. Intra-category style diversity (bomber vs blazer vs parka) sets a ceiling that embedding-only methods can't easily cross.
+5. **96D color features (16 bins/channel) cause a catastrophic -23.2pp drop vs 48D.** Finer quantization produces sparse, lighting-sensitive histograms: the same navy-blue pixel lands in different bins across gallery and query views. Coarser bins (8/channel) are more robust to intra-class variation — the primary challenge in DeepFashion (Liu et al., 2016). More resolution ≠ better when the signal has systematic intra-class variation.
 
 ---
 
 ## Models Compared
 
-**25+ configurations** across Phases 1–3 (Phase 1: ResNet50, EfficientNet, color features; Phase 2: CLIP ViT-B/32, ViT-L/14, DINOv2, color reranking; Phase 3: spatial color, LBP, HOG, text metadata, category-conditioned retrieval, K-means color, DINOv2 patch pooling, GeM pooling, feature ablation).
+**30+ configurations** across Phases 1–4 (Phase 1: ResNet50, EfficientNet, color features; Phase 2: CLIP ViT-B/32, ViT-L/14, DINOv2, color reranking; Phase 3: spatial color, LBP, HOG, text metadata, category-conditioned retrieval, K-means color, DINOv2 patch pooling, GeM pooling, feature ablation; Phase 4: per-category alpha sweep, 96D color resolution, multiplicative fusion, baseline revalidation, error analysis).
 
 ---
 
@@ -172,6 +172,32 @@ Product image (52,591 DeepFashion In-Shop images)
 **Surprise:** DINOv2 patch mean-pooling is *worse* than CLS-token (R@1=15.0% vs 24.3%), the opposite of what dense-task literature predicts. On white-background product photos, ~150 background patches dilute the 100 foreground patches — CLS self-attention naturally upweights the product region. Background context, which enriches segmentation tasks, is pure noise for product retrieval.<br><br>
 **Research:** Radford et al., 2021 (CLIP, ICML) — cross-modal alignment means "a photo of red shorts" maps precisely to the region where red shorts cluster; Jing et al., 2015 (Pinterest, KDD) — category-first, rank-within-class is the production standard for visual search, explaining the +8.9pp from hard category filtering.<br><br>
 **Best Model So Far:** CLIP B/32 + category filter + color reranking (alpha=0.4) — R@1=68.3%, R@20=97.0%
+
+</td>
+</tr>
+</table>
+
+### Phase 4: Hyperparameter Tuning + Error Analysis — 2026-04-23
+
+<table>
+<tr>
+<td valign="top" width="38%">
+
+**Tuning Run 1:** Per-category alpha oracle (grid search α ∈ {0.00…1.00} per category independently) pushes R@1 to 0.6952 (+1.27pp vs Phase 3 champion). Tees benefit most at α=0.50 (+3.7pp), denim at α=0.45 (+2.6pp); jackets, shorts, and sweatshirts are already at their global optimum. Multiplicative fusion (beta=1.5) adds a marginal +0.29pp — statistically negligible (~3 queries on 1027), not worth the added complexity.<br><br>
+**Error Analysis:** 85.3% of 326 failed queries have the correct product already in the top-5, with a median score gap of only 0.021. Shorts fail at 50.6% and pants at 46.5% — categories whose intra-category variation (subtle hem/waist details) is invisible to CLIP and color histograms. The bottleneck is top-5 ranking precision, not gross recall.
+
+</td>
+<td align="center" width="24%">
+
+<img src="results/phase4_mark_results.png" width="220">
+
+</td>
+<td valign="top" width="38%">
+
+**Combined Insight:** Hyperparameter tuning yields diminishing returns at this stage (+1.27pp oracle, +0.29pp multiplicative). The error analysis reveals why: when 85.3% of failures are already top-5 with a score gap of 0.021, the next lever is a cross-modal reranker using Anthony's text metadata signal on the top-5 candidates — potentially recovering most of the remaining 31.7% failure rate.<br><br>
+**Surprise:** 96D color (16 bins/channel) causes a catastrophic -23.2pp R@1 drop vs the 48D champion. Higher resolution creates sparse, lighting-sensitive histograms where the same navy-blue pixel lands in different bins across gallery and query images. Coarser 8-bin quantization is more robust to intra-class lighting variation — the primary challenge in DeepFashion product retrieval. More bins ≠ more signal when the source has systematic variation.<br><br>
+**Research:** Babenko et al., 2014 (ECCV) — compact descriptors with appropriate pooling outperform high-dimensional sparse ones; directly predicted the 96D failure. Johnson et al., 2019 (FAISS, IEEE TBMD) — per-category index partitioning validates the category-conditioned architecture; their recall-precision tradeoff analysis informed the per-category alpha sweep design.<br><br>
+**Best Model So Far:** Per-category alpha oracle (CLIP B/32 + cat.filter + per-cat α) — R@1=69.5%, R@20=97.0% (oracle upper bound; production champion remains CLIP B/32 + cat.filter + color α=0.4 at R@1=68.3%)
 
 </td>
 </tr>
