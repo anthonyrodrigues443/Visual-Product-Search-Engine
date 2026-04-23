@@ -1,116 +1,4 @@
 {
-  "phase1_baseline": {
-    "model": "ResNet50_ImageNet_V2",
-    "embedding_dim": 2048,
-    "gallery_size": 300,
-    "query_size": 1027,
-    "recall_at_1": 0.30671859785783834,
-    "recall_at_5": 0.49269717624148,
-    "recall_at_10": 0.5900681596884129,
-    "recall_at_20": 0.691333982473223
-  },
-  "per_category": {
-    "denim": {
-      "recall@1": 0.35064935064935066,
-      "recall@10": 0.5974025974025974,
-      "n_queries": 77
-    },
-    "jackets": {
-      "recall@1": 0.13924050632911392,
-      "recall@10": 0.4810126582278481,
-      "n_queries": 79
-    },
-    "pants": {
-      "recall@1": 0.3055555555555556,
-      "recall@10": 0.6111111111111112,
-      "n_queries": 144
-    },
-    "shirts": {
-      "recall@1": 0.3884297520661157,
-      "recall@10": 0.7024793388429752,
-      "n_queries": 121
-    },
-    "shorts": {
-      "recall@1": 0.25316455696202533,
-      "recall@10": 0.5443037974683544,
-      "n_queries": 158
-    },
-    "sweaters": {
-      "recall@1": 0.3783783783783784,
-      "recall@10": 0.6621621621621622,
-      "n_queries": 74
-    },
-    "sweatshirts": {
-      "recall@1": 0.2440944881889764,
-      "recall@10": 0.5275590551181102,
-      "n_queries": 127
-    },
-    "tees": {
-      "recall@1": 0.3524590163934426,
-      "recall@10": 0.5901639344262295,
-      "n_queries": 244
-    }
-  },
-  "similarity_separation": {
-    "correct_mean": 0.7862306394207645,
-    "incorrect_mean": 0.737771471766769,
-    "separation": 0.048459167653995494
-  },
-  "phase1_mark": {
-    "description": "Mark Phase 1 complementary: color palette features + EfficientNet-B0",
-    "date": "2026-04-20",
-    "eval_products": 300,
-    "eval_gallery": 300,
-    "eval_queries": 1027,
-    "color_feature_dim": 48,
-    "color_feature_description": "RGB histogram (24D) + HSV histogram (24D)",
-    "color_weight": 0.3,
-    "experiments": {
-      "efficientnet_b0": {
-        "recall@1": 0.3671,
-        "recall@5": 0.5988,
-        "recall@10": 0.6855,
-        "recall@20": 0.776
-      },
-      "color_only_48d": {
-        "recall@1": 0.3379,
-        "recall@5": 0.5239,
-        "recall@10": 0.6125,
-        "recall@20": 0.7069
-      },
-      "resnet50_color_augmented": {
-        "recall@1": 0.3213,
-        "recall@5": 0.5063,
-        "recall@10": 0.6056,
-        "recall@20": 0.7059
-      },
-      "efficientnet_b0_color": {
-        "recall@1": 0.3827,
-        "recall@5": 0.6115,
-        "recall@10": 0.6943,
-        "recall@20": 0.7848
-      },
-      "resnet50_rerank_alpha07": {
-        "recall@1": 0.3622,
-        "recall@5": 0.557,
-        "recall@10": 0.6397,
-        "recall@20": 0.6913
-      },
-      "resnet50_rerank_alpha05": {
-        "recall@1": 0.4051,
-        "recall@5": 0.593,
-        "recall@10": 0.6573,
-        "recall@20": 0.6913
-      }
-    },
-    "best_result": {
-      "approach": "resnet50_rerank_alpha05",
-      "recall@1": 0.4051,
-      "recall@10": 0.6573,
-      "vs_baseline_r1_delta": 0.0984
-    },
-    "headline_finding": "EfficientNet-B0 (20MB) beats ResNet50 (98MB) by +6pp R@1. 48D color histogram alone beats 2048D ResNet50 embedding. Color re-ranking (alpha=0.5, no retraining) gives best result: R@1=0.4051 (+9.8pp)."
-  },
   "phase2_anthony": {
     "date": "2026-04-21",
     "eval_products": 300,
@@ -306,400 +194,6 @@
         "tees": 0.6311
       }
     }
-  },
-  "phase2_mark": {
-    "description": "Mark Phase 2: Foundation models (CLIP, DINOv2, ConvNeXt) vs CNN baselines",
-    "date": "2026-04-21",
-    "eval_products": 300,
-    "seed": 42,
-    "experiments": {
-      "efficientnet_b0_p1_rerun": {
-        "recall@1": 0.36903602726387535,
-        "recall@5": 0.5978578383641675,
-        "recall@10": 0.6835443037974683,
-        "recall@20": 0.7682570593963,
-        "embed_dim": 1280,
-        "total_embed_time_s": 199.86,
-        "per_category_r1": {
-          "denim": {
-            "recall@1": 0.37662337662337664,
-            "n_queries": 77
-          },
-          "jackets": {
-            "recall@1": 0.24050632911392406,
-            "n_queries": 79
-          },
-          "pants": {
-            "recall@1": 0.4097222222222222,
-            "n_queries": 144
-          },
-          "shirts": {
-            "recall@1": 0.4132231404958678,
-            "n_queries": 121
-          },
-          "shorts": {
-            "recall@1": 0.2911392405063291,
-            "n_queries": 158
-          },
-          "sweaters": {
-            "recall@1": 0.40540540540540543,
-            "n_queries": 74
-          },
-          "sweatshirts": {
-            "recall@1": 0.33858267716535434,
-            "n_queries": 127
-          },
-          "tees": {
-            "recall@1": 0.4139344262295082,
-            "n_queries": 244
-          }
-        },
-        "per_category_r10": {
-          "denim": {
-            "recall@1": 0.6883116883116883,
-            "n_queries": 77
-          },
-          "jackets": {
-            "recall@1": 0.569620253164557,
-            "n_queries": 79
-          },
-          "pants": {
-            "recall@1": 0.6875,
-            "n_queries": 144
-          },
-          "shirts": {
-            "recall@1": 0.7768595041322314,
-            "n_queries": 121
-          },
-          "shorts": {
-            "recall@1": 0.689873417721519,
-            "n_queries": 158
-          },
-          "sweaters": {
-            "recall@1": 0.7567567567567568,
-            "n_queries": 74
-          },
-          "sweatshirts": {
-            "recall@1": 0.5984251968503937,
-            "n_queries": 127
-          },
-          "tees": {
-            "recall@1": 0.6844262295081968,
-            "n_queries": 244
-          }
-        }
-      },
-      "clip_vit_b32": {
-        "recall@1": 0.4800389483933788,
-        "recall@5": 0.6718597857838364,
-        "recall@10": 0.7400194741966893,
-        "recall@20": 0.807205452775073,
-        "embed_dim": 512,
-        "total_embed_time_s": 220.79,
-        "per_category_r1": {
-          "denim": {
-            "recall@1": 0.45454545454545453,
-            "n_queries": 77
-          },
-          "jackets": {
-            "recall@1": 0.4430379746835443,
-            "n_queries": 79
-          },
-          "pants": {
-            "recall@1": 0.4652777777777778,
-            "n_queries": 144
-          },
-          "shirts": {
-            "recall@1": 0.6033057851239669,
-            "n_queries": 121
-          },
-          "shorts": {
-            "recall@1": 0.3670886075949367,
-            "n_queries": 158
-          },
-          "sweaters": {
-            "recall@1": 0.5540540540540541,
-            "n_queries": 74
-          },
-          "sweatshirts": {
-            "recall@1": 0.4409448818897638,
-            "n_queries": 127
-          },
-          "tees": {
-            "recall@1": 0.5163934426229508,
-            "n_queries": 244
-          }
-        },
-        "per_category_r10": {
-          "denim": {
-            "recall@1": 0.7142857142857143,
-            "n_queries": 77
-          },
-          "jackets": {
-            "recall@1": 0.759493670886076,
-            "n_queries": 79
-          },
-          "pants": {
-            "recall@1": 0.6875,
-            "n_queries": 144
-          },
-          "shirts": {
-            "recall@1": 0.8925619834710744,
-            "n_queries": 121
-          },
-          "shorts": {
-            "recall@1": 0.5822784810126582,
-            "n_queries": 158
-          },
-          "sweaters": {
-            "recall@1": 0.8378378378378378,
-            "n_queries": 74
-          },
-          "sweatshirts": {
-            "recall@1": 0.6929133858267716,
-            "n_queries": 127
-          },
-          "tees": {
-            "recall@1": 0.7950819672131147,
-            "n_queries": 244
-          }
-        }
-      },
-      "dinov2_vits14": {
-        "recall@1": 0.24342745861733203,
-        "recall@5": 0.5413826679649465,
-        "recall@10": 0.6650438169425511,
-        "recall@20": 0.7702044790652386,
-        "embed_dim": 384,
-        "total_embed_time_s": 356.1,
-        "per_category_r1": {
-          "denim": {
-            "recall@1": 0.2597402597402597,
-            "n_queries": 77
-          },
-          "jackets": {
-            "recall@1": 0.3670886075949367,
-            "n_queries": 79
-          },
-          "pants": {
-            "recall@1": 0.24305555555555555,
-            "n_queries": 144
-          },
-          "shirts": {
-            "recall@1": 0.2066115702479339,
-            "n_queries": 121
-          },
-          "shorts": {
-            "recall@1": 0.16455696202531644,
-            "n_queries": 158
-          },
-          "sweaters": {
-            "recall@1": 0.14864864864864866,
-            "n_queries": 74
-          },
-          "sweatshirts": {
-            "recall@1": 0.2204724409448819,
-            "n_queries": 127
-          },
-          "tees": {
-            "recall@1": 0.3073770491803279,
-            "n_queries": 244
-          }
-        },
-        "per_category_r10": {
-          "denim": {
-            "recall@1": 0.6883116883116883,
-            "n_queries": 77
-          },
-          "jackets": {
-            "recall@1": 0.759493670886076,
-            "n_queries": 79
-          },
-          "pants": {
-            "recall@1": 0.6180555555555556,
-            "n_queries": 144
-          },
-          "shirts": {
-            "recall@1": 0.7355371900826446,
-            "n_queries": 121
-          },
-          "shorts": {
-            "recall@1": 0.5063291139240507,
-            "n_queries": 158
-          },
-          "sweaters": {
-            "recall@1": 0.6486486486486487,
-            "n_queries": 74
-          },
-          "sweatshirts": {
-            "recall@1": 0.5748031496062992,
-            "n_queries": 127
-          },
-          "tees": {
-            "recall@1": 0.7704918032786885,
-            "n_queries": 244
-          }
-        }
-      },
-      "clip_vit_b32_color_rerank_alpha05": {
-        "recall@1": 0.5764362220058422,
-        "recall@5": 0.7468354430379747,
-        "recall@10": 0.7867575462512172,
-        "recall@20": 0.807205452775073,
-        "per_category_r1": {
-          "denim": {
-            "recall@1": 0.5324675324675324,
-            "n_queries": 77
-          },
-          "jackets": {
-            "recall@1": 0.6329113924050633,
-            "n_queries": 79
-          },
-          "pants": {
-            "recall@1": 0.5416666666666666,
-            "n_queries": 144
-          },
-          "shirts": {
-            "recall@1": 0.7107438016528925,
-            "n_queries": 121
-          },
-          "shorts": {
-            "recall@1": 0.4177215189873418,
-            "n_queries": 158
-          },
-          "sweaters": {
-            "recall@1": 0.6756756756756757,
-            "n_queries": 74
-          },
-          "sweatshirts": {
-            "recall@1": 0.5196850393700787,
-            "n_queries": 127
-          },
-          "tees": {
-            "recall@1": 0.6270491803278688,
-            "n_queries": 244
-          }
-        },
-        "per_category_r10": {
-          "denim": {
-            "recall@1": 0.7792207792207793,
-            "n_queries": 77
-          },
-          "jackets": {
-            "recall@1": 0.8227848101265823,
-            "n_queries": 79
-          },
-          "pants": {
-            "recall@1": 0.7430555555555556,
-            "n_queries": 144
-          },
-          "shirts": {
-            "recall@1": 0.8925619834710744,
-            "n_queries": 121
-          },
-          "shorts": {
-            "recall@1": 0.6582278481012658,
-            "n_queries": 158
-          },
-          "sweaters": {
-            "recall@1": 0.918918918918919,
-            "n_queries": 74
-          },
-          "sweatshirts": {
-            "recall@1": 0.7637795275590551,
-            "n_queries": 127
-          },
-          "tees": {
-            "recall@1": 0.8073770491803278,
-            "n_queries": 244
-          }
-        }
-      },
-      "dinov2_vits14_color_rerank_alpha05": {
-        "recall@1": 0.3281402142161636,
-        "recall@5": 0.6416747809152873,
-        "recall@10": 0.7302823758519961,
-        "recall@20": 0.7702044790652386,
-        "per_category_r1": {
-          "denim": {
-            "recall@1": 0.4155844155844156,
-            "n_queries": 77
-          },
-          "jackets": {
-            "recall@1": 0.43037974683544306,
-            "n_queries": 79
-          },
-          "pants": {
-            "recall@1": 0.3333333333333333,
-            "n_queries": 144
-          },
-          "shirts": {
-            "recall@1": 0.2644628099173554,
-            "n_queries": 121
-          },
-          "shorts": {
-            "recall@1": 0.2088607594936709,
-            "n_queries": 158
-          },
-          "sweaters": {
-            "recall@1": 0.25675675675675674,
-            "n_queries": 74
-          },
-          "sweatshirts": {
-            "recall@1": 0.29133858267716534,
-            "n_queries": 127
-          },
-          "tees": {
-            "recall@1": 0.4098360655737705,
-            "n_queries": 244
-          }
-        },
-        "per_category_r10": {
-          "denim": {
-            "recall@1": 0.7532467532467533,
-            "n_queries": 77
-          },
-          "jackets": {
-            "recall@1": 0.7974683544303798,
-            "n_queries": 79
-          },
-          "pants": {
-            "recall@1": 0.7152777777777778,
-            "n_queries": 144
-          },
-          "shirts": {
-            "recall@1": 0.7933884297520661,
-            "n_queries": 121
-          },
-          "shorts": {
-            "recall@1": 0.5632911392405063,
-            "n_queries": 158
-          },
-          "sweaters": {
-            "recall@1": 0.7837837837837838,
-            "n_queries": 74
-          },
-          "sweatshirts": {
-            "recall@1": 0.6456692913385826,
-            "n_queries": 127
-          },
-          "tees": {
-            "recall@1": 0.8114754098360656,
-            "n_queries": 244
-          }
-        }
-      }
-    },
-    "eval_gallery": 300,
-    "eval_queries": 1027,
-    "best_result": {
-      "approach": "clip_vit_b32_color_rerank_alpha05",
-      "recall@1": 0.5764362220058422,
-      "recall@10": 0.7867575462512172,
-      "delta_vs_anthony_resnet50": 0.2697,
-      "delta_vs_phase1_best": 0.1713
-    },
-    "headline_finding": "CLIP ViT-B/32 + color rerank (\u03b1=0.5) wins Phase 2 at R@1=0.5764 \u2014 a +0.270 lift over Anthony's ResNet50 baseline (0.307) and +0.171 over Mark's Phase 1 best (ResNet50 + color rerank, 0.405). Surprise: DINOv2 (self-supervised ViT) UNDERPERFORMS CLIP by 0.237 R@1 \u2014 contradicting the common belief that self-supervised visual features beat text-aligned ones on image\u2192image retrieval. CLS-token DINOv2 clusters products correctly (R@10=0.665) but fails to discriminate the top-1 match. Mark's Phase 1 color-rerank trick STACKS on top of CLIP (+0.096 R@1), validating that explicit color signal is still the missing piece even with a 400M-pair foundation model."
   },
   "phase3_anthony": {
     "date": "2026-04-22",
@@ -982,5 +476,261 @@
       "lift_pp": 0.0886,
       "conclusion": "Category-conditioned retrieval = +8.9pp R@1 with zero feature engineering."
     }
+  },
+  "phase4_mark": {
+    "date": "2026-04-23",
+    "researcher": "Mark Rodrigues",
+    "eval_products": 300,
+    "eval_gallery": 300,
+    "eval_queries": 1027,
+    "research_question": "What is the remaining 31.7% failure mode? Can per-category tuning push R@1 above 0.70?",
+    "headline_finding": "COUNTERINTUITIVE: 96D color (16 bins) CATASTROPHICALLY hurts R@1 by -23.2pp (0.6826->0.4508). Coarser 8-bin histograms are MORE robust to lighting variation. Per-category alpha oracle = R@1=0.6952 (+1.27pp). 85.3% of failures are 'close misses' \u2014 correct product in top-5 with tiny score gap (median gap=0.021). Multiplicative fusion (beta=1.5) marginally wins (+0.29pp). Best Phase 4 system: per-category alpha (oracle) R@1=0.6952.",
+    "experiments": {
+      "4M1_champion_reval": {
+        "R@1": 0.6826,
+        "R@5": 0.8617,
+        "R@10": 0.9133,
+        "R@20": 0.9698
+      },
+      "4M2_percat_alpha_oracle": {
+        "R@1": 0.6952,
+        "R@5": 0.8656,
+        "R@10": 0.9114,
+        "R@20": 0.9707
+      },
+      "4M2_best_alpha_per_cat": {
+        "denim": 0.45,
+        "jackets": 0.4,
+        "pants": 0.45,
+        "shirts": 0.35,
+        "shorts": 0.4,
+        "suiting": 0.0,
+        "sweaters": 0.5,
+        "sweatshirts": 0.4,
+        "tees": 0.5
+      },
+      "4M3_color96": {
+        "R@1": 0.4508,
+        "R@5": 0.6894,
+        "R@10": 0.8062,
+        "R@20": 0.926,
+        "best_alpha": 0.45,
+        "delta_vs_champion": -0.2318,
+        "verdict": "COUNTERINTUITIVE: 16 bins/channel HURTS (-23.2pp). Sparser histograms \u2192 less smooth cosine similarity. 8-bin histograms more robust to lighting variation."
+      },
+      "4M5_multiplicative": {
+        "beta_0.25": {
+          "R@1": 0.6212,
+          "R@5": 0.8043,
+          "R@10": 0.8617
+        },
+        "beta_0.5": {
+          "R@1": 0.6534,
+          "R@5": 0.8277,
+          "R@10": 0.8754
+        },
+        "beta_0.75": {
+          "R@1": 0.6709,
+          "R@5": 0.8384,
+          "R@10": 0.888
+        },
+        "beta_1.0": {
+          "R@1": 0.6767,
+          "R@5": 0.8491,
+          "R@10": 0.8978
+        },
+        "beta_1.5": {
+          "R@1": 0.6855,
+          "R@5": 0.8598,
+          "R@10": 0.9085
+        },
+        "beta_2.0": {
+          "R@1": 0.6787,
+          "R@5": 0.8705,
+          "R@10": 0.9143
+        }
+      },
+      "4M5_best_beta": 1.5,
+      "4M5_best_r1": 0.6855,
+      "4M5_delta_vs_additive": 0.0029,
+      "4M6_percat_96d": {
+        "R@1": 0.3836,
+        "R@5": 0.5326,
+        "R@10": 0.6504,
+        "R@20": 0.7984
+      }
+    },
+    "error_analysis": {
+      "n_success": 701,
+      "n_fail": 326,
+      "success_rate": 0.6826,
+      "close_miss_pct": 85.3,
+      "pct_wrong_category": 0.0,
+      "rank_distribution": {
+        "rank_2": {
+          "count": 70,
+          "pct": 21.5
+        },
+        "rank_3": {
+          "count": 52,
+          "pct": 16.0
+        },
+        "rank_4": {
+          "count": 38,
+          "pct": 11.7
+        },
+        "rank_5": {
+          "count": 18,
+          "pct": 5.5
+        },
+        "rank_6_10": {
+          "count": 78,
+          "pct": 23.9
+        },
+        "rank_11p": {
+          "count": 70,
+          "pct": 21.5
+        }
+      },
+      "score_gap_median": 0.0207,
+      "score_gap_mean": 0.0262,
+      "pct_tiny_gap": 30.7,
+      "pct_small_gap": 85.3,
+      "pct_large_gap": 0.9,
+      "score_success_mean": 0.9505,
+      "score_fail_mean": 0.9024,
+      "score_separation": 0.048,
+      "per_category": {
+        "denim": {
+          "fail_rate": 0.2078,
+          "med_rank_correct": 4.5,
+          "avg_score_gap": 0.0229
+        },
+        "jackets": {
+          "fail_rate": 0.3671,
+          "med_rank_correct": 4.0,
+          "avg_score_gap": 0.0255
+        },
+        "pants": {
+          "fail_rate": 0.4653,
+          "med_rank_correct": 5.0,
+          "avg_score_gap": 0.0283
+        },
+        "shirts": {
+          "fail_rate": 0.3719,
+          "med_rank_correct": 4.0,
+          "avg_score_gap": 0.0271
+        },
+        "shorts": {
+          "fail_rate": 0.5063,
+          "med_rank_correct": 5.0,
+          "avg_score_gap": 0.03
+        },
+        "suiting": {
+          "fail_rate": 0.0,
+          "med_rank_correct": 0.0,
+          "avg_score_gap": 0.0
+        },
+        "sweaters": {
+          "fail_rate": 0.0946,
+          "med_rank_correct": 2.0,
+          "avg_score_gap": 0.0204
+        },
+        "sweatshirts": {
+          "fail_rate": 0.3307,
+          "med_rank_correct": 3.0,
+          "avg_score_gap": 0.0297
+        },
+        "tees": {
+          "fail_rate": 0.3156,
+          "med_rank_correct": 4.0,
+          "avg_score_gap": 0.0234
+        }
+      }
+    },
+    "alpha_scan_per_category": [
+      {
+        "category": "denim",
+        "best_alpha": 0.45,
+        "best_r1": 0.8182,
+        "global_r1": 0.7922,
+        "delta": 0.026,
+        "n_gallery": 23,
+        "n_query": 77
+      },
+      {
+        "category": "jackets",
+        "best_alpha": 0.4,
+        "best_r1": 0.6329,
+        "global_r1": 0.6329,
+        "delta": 0.0,
+        "n_gallery": 23,
+        "n_query": 79
+      },
+      {
+        "category": "pants",
+        "best_alpha": 0.45,
+        "best_r1": 0.5347,
+        "global_r1": 0.5069,
+        "delta": 0.0278,
+        "n_gallery": 43,
+        "n_query": 144
+      },
+      {
+        "category": "shirts",
+        "best_alpha": 0.35,
+        "best_r1": 0.6281,
+        "global_r1": 0.6033,
+        "delta": 0.0248,
+        "n_gallery": 36,
+        "n_query": 121
+      },
+      {
+        "category": "shorts",
+        "best_alpha": 0.4,
+        "best_r1": 0.4937,
+        "global_r1": 0.4937,
+        "delta": 0.0,
+        "n_gallery": 43,
+        "n_query": 158
+      },
+      {
+        "category": "suiting",
+        "best_alpha": 0.0,
+        "best_r1": 1.0,
+        "global_r1": 0.6667,
+        "delta": 0.3333,
+        "n_gallery": 2,
+        "n_query": 3
+      },
+      {
+        "category": "sweaters",
+        "best_alpha": 0.5,
+        "best_r1": 0.9054,
+        "global_r1": 0.8784,
+        "delta": 0.027,
+        "n_gallery": 25,
+        "n_query": 74
+      },
+      {
+        "category": "sweatshirts",
+        "best_alpha": 0.4,
+        "best_r1": 0.6772,
+        "global_r1": 0.6772,
+        "delta": 0.0,
+        "n_gallery": 36,
+        "n_query": 127
+      },
+      {
+        "category": "tees",
+        "best_alpha": 0.5,
+        "best_r1": 0.668,
+        "global_r1": 0.6311,
+        "delta": 0.0369,
+        "n_gallery": 69,
+        "n_query": 244
+      }
+    ],
+    "phase4_best_r1": 0.6952
   }
 }

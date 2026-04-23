@@ -1,0 +1,258 @@
+{
+  "phase4_mark": {
+    "date": "2026-04-23",
+    "researcher": "Mark Rodrigues",
+    "eval_products": 300,
+    "eval_gallery": 300,
+    "eval_queries": 1027,
+    "research_question": "What is the remaining 31.7% failure mode? Can per-category tuning push R@1 above 0.70?",
+    "headline_finding": "COUNTERINTUITIVE: 96D color (16 bins) CATASTROPHICALLY hurts R@1 by -23.2pp (0.6826->0.4508). Coarser 8-bin histograms are MORE robust to lighting variation. Per-category alpha oracle = R@1=0.6952 (+1.27pp). 85.3% of failures are 'close misses' \u2014 correct product in top-5 with tiny score gap (median gap=0.021). Multiplicative fusion (beta=1.5) marginally wins (+0.29pp). Best Phase 4 system: per-category alpha (oracle) R@1=0.6952.",
+    "experiments": {
+      "4M1_champion_reval": {
+        "R@1": 0.6826,
+        "R@5": 0.8617,
+        "R@10": 0.9133,
+        "R@20": 0.9698
+      },
+      "4M2_percat_alpha_oracle": {
+        "R@1": 0.6952,
+        "R@5": 0.8656,
+        "R@10": 0.9114,
+        "R@20": 0.9707
+      },
+      "4M2_best_alpha_per_cat": {
+        "denim": 0.45,
+        "jackets": 0.4,
+        "pants": 0.45,
+        "shirts": 0.35,
+        "shorts": 0.4,
+        "suiting": 0.0,
+        "sweaters": 0.5,
+        "sweatshirts": 0.4,
+        "tees": 0.5
+      },
+      "4M3_color96": {
+        "R@1": 0.4508,
+        "R@5": 0.6894,
+        "R@10": 0.8062,
+        "R@20": 0.926,
+        "best_alpha": 0.45,
+        "delta_vs_champion": -0.2318,
+        "verdict": "COUNTERINTUITIVE: 16 bins/channel HURTS (-23.2pp). Sparser histograms \u2192 less smooth cosine similarity. 8-bin histograms more robust to lighting variation."
+      },
+      "4M5_multiplicative": {
+        "beta_0.25": {
+          "R@1": 0.6212,
+          "R@5": 0.8043,
+          "R@10": 0.8617
+        },
+        "beta_0.5": {
+          "R@1": 0.6534,
+          "R@5": 0.8277,
+          "R@10": 0.8754
+        },
+        "beta_0.75": {
+          "R@1": 0.6709,
+          "R@5": 0.8384,
+          "R@10": 0.888
+        },
+        "beta_1.0": {
+          "R@1": 0.6767,
+          "R@5": 0.8491,
+          "R@10": 0.8978
+        },
+        "beta_1.5": {
+          "R@1": 0.6855,
+          "R@5": 0.8598,
+          "R@10": 0.9085
+        },
+        "beta_2.0": {
+          "R@1": 0.6787,
+          "R@5": 0.8705,
+          "R@10": 0.9143
+        }
+      },
+      "4M5_best_beta": 1.5,
+      "4M5_best_r1": 0.6855,
+      "4M5_delta_vs_additive": 0.0029,
+      "4M6_percat_96d": {
+        "R@1": 0.3836,
+        "R@5": 0.5326,
+        "R@10": 0.6504,
+        "R@20": 0.7984
+      }
+    },
+    "error_analysis": {
+      "n_success": 701,
+      "n_fail": 326,
+      "success_rate": 0.6826,
+      "close_miss_pct": 85.3,
+      "pct_wrong_category": 0.0,
+      "rank_distribution": {
+        "rank_2": {
+          "count": 70,
+          "pct": 21.5
+        },
+        "rank_3": {
+          "count": 52,
+          "pct": 16.0
+        },
+        "rank_4": {
+          "count": 38,
+          "pct": 11.7
+        },
+        "rank_5": {
+          "count": 18,
+          "pct": 5.5
+        },
+        "rank_6_10": {
+          "count": 78,
+          "pct": 23.9
+        },
+        "rank_11p": {
+          "count": 70,
+          "pct": 21.5
+        }
+      },
+      "score_gap_median": 0.0207,
+      "score_gap_mean": 0.0262,
+      "pct_tiny_gap": 30.7,
+      "pct_small_gap": 85.3,
+      "pct_large_gap": 0.9,
+      "score_success_mean": 0.9505,
+      "score_fail_mean": 0.9024,
+      "score_separation": 0.048,
+      "per_category": {
+        "denim": {
+          "fail_rate": 0.2078,
+          "med_rank_correct": 4.5,
+          "avg_score_gap": 0.0229
+        },
+        "jackets": {
+          "fail_rate": 0.3671,
+          "med_rank_correct": 4.0,
+          "avg_score_gap": 0.0255
+        },
+        "pants": {
+          "fail_rate": 0.4653,
+          "med_rank_correct": 5.0,
+          "avg_score_gap": 0.0283
+        },
+        "shirts": {
+          "fail_rate": 0.3719,
+          "med_rank_correct": 4.0,
+          "avg_score_gap": 0.0271
+        },
+        "shorts": {
+          "fail_rate": 0.5063,
+          "med_rank_correct": 5.0,
+          "avg_score_gap": 0.03
+        },
+        "suiting": {
+          "fail_rate": 0.0,
+          "med_rank_correct": 0.0,
+          "avg_score_gap": 0.0
+        },
+        "sweaters": {
+          "fail_rate": 0.0946,
+          "med_rank_correct": 2.0,
+          "avg_score_gap": 0.0204
+        },
+        "sweatshirts": {
+          "fail_rate": 0.3307,
+          "med_rank_correct": 3.0,
+          "avg_score_gap": 0.0297
+        },
+        "tees": {
+          "fail_rate": 0.3156,
+          "med_rank_correct": 4.0,
+          "avg_score_gap": 0.0234
+        }
+      }
+    },
+    "alpha_scan_per_category": [
+      {
+        "category": "denim",
+        "best_alpha": 0.45,
+        "best_r1": 0.8182,
+        "global_r1": 0.7922,
+        "delta": 0.026,
+        "n_gallery": 23,
+        "n_query": 77
+      },
+      {
+        "category": "jackets",
+        "best_alpha": 0.4,
+        "best_r1": 0.6329,
+        "global_r1": 0.6329,
+        "delta": 0.0,
+        "n_gallery": 23,
+        "n_query": 79
+      },
+      {
+        "category": "pants",
+        "best_alpha": 0.45,
+        "best_r1": 0.5347,
+        "global_r1": 0.5069,
+        "delta": 0.0278,
+        "n_gallery": 43,
+        "n_query": 144
+      },
+      {
+        "category": "shirts",
+        "best_alpha": 0.35,
+        "best_r1": 0.6281,
+        "global_r1": 0.6033,
+        "delta": 0.0248,
+        "n_gallery": 36,
+        "n_query": 121
+      },
+      {
+        "category": "shorts",
+        "best_alpha": 0.4,
+        "best_r1": 0.4937,
+        "global_r1": 0.4937,
+        "delta": 0.0,
+        "n_gallery": 43,
+        "n_query": 158
+      },
+      {
+        "category": "suiting",
+        "best_alpha": 0.0,
+        "best_r1": 1.0,
+        "global_r1": 0.6667,
+        "delta": 0.3333,
+        "n_gallery": 2,
+        "n_query": 3
+      },
+      {
+        "category": "sweaters",
+        "best_alpha": 0.5,
+        "best_r1": 0.9054,
+        "global_r1": 0.8784,
+        "delta": 0.027,
+        "n_gallery": 25,
+        "n_query": 74
+      },
+      {
+        "category": "sweatshirts",
+        "best_alpha": 0.4,
+        "best_r1": 0.6772,
+        "global_r1": 0.6772,
+        "delta": 0.0,
+        "n_gallery": 36,
+        "n_query": 127
+      },
+      {
+        "category": "tees",
+        "best_alpha": 0.5,
+        "best_r1": 0.668,
+        "global_r1": 0.6311,
+        "delta": 0.0369,
+        "n_gallery": 69,
+        "n_query": 244
+      }
+    ],
+    "phase4_best_r1": 0.6952
+  }
+}
