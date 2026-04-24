@@ -1,0 +1,304 @@
+{
+  "phase4_anthony": {
+    "date": "2026-04-24",
+    "researcher": "Anthony Rodrigues",
+    "eval_products": 300,
+    "eval_gallery": 300,
+    "eval_queries": 1027,
+    "research_question": "Can Optuna + two-stage reranking + query augmentation push R@1 past Phase 3 champion (0.6748)?",
+    "phase3_champion": {
+      "R@1": 0.6748,
+      "R@5": 0.8199,
+      "R@10": 0.8724,
+      "R@20": 0.9104
+    },
+    "text_weight_sweep": {
+      "0.05": {
+        "R@1": 0.6339,
+        "R@5": 0.8014,
+        "R@10": 0.8471,
+        "R@20": 0.8948
+      },
+      "0.1": {
+        "R@1": 0.6485,
+        "R@5": 0.8082,
+        "R@10": 0.8559,
+        "R@20": 0.8997
+      },
+      "0.15": {
+        "R@1": 0.6748,
+        "R@5": 0.8199,
+        "R@10": 0.8724,
+        "R@20": 0.9104
+      },
+      "0.2": {
+        "R@1": 0.6981,
+        "R@5": 0.8345,
+        "R@10": 0.8909,
+        "R@20": 0.9192
+      },
+      "0.25": {
+        "R@1": 0.7274,
+        "R@5": 0.8647,
+        "R@10": 0.9046,
+        "R@20": 0.9426
+      },
+      "0.3": {
+        "R@1": 0.7459,
+        "R@5": 0.8832,
+        "R@10": 0.9211,
+        "R@20": 0.9542
+      },
+      "0.4": {
+        "R@1": 0.7877,
+        "R@5": 0.926,
+        "R@10": 0.9533,
+        "R@20": 0.9757
+      },
+      "0.5": {
+        "R@1": 0.8257,
+        "R@5": 0.9484,
+        "R@10": 0.9727,
+        "R@20": 0.9922
+      }
+    },
+    "best_text_weight": 0.5,
+    "optuna_best_params": {
+      "w_clip": 0.5,
+      "w_color": 0.4,
+      "w_spatial": 0.35,
+      "w_text": 0.6
+    },
+    "optuna_result": {
+      "R@1": 0.8948,
+      "R@5": 0.9893,
+      "R@10": 1.0,
+      "R@20": 1.0
+    },
+    "two_stage_results": {
+      "10": {
+        "R@1": 0.7741,
+        "R@5": 0.8053,
+        "R@10": 0.8053,
+        "R@20": 0.853
+      },
+      "20": {
+        "R@1": 0.8101,
+        "R@5": 0.853,
+        "R@10": 0.853,
+        "R@20": 0.853
+      },
+      "30": {
+        "R@1": 0.8228,
+        "R@5": 0.8802,
+        "R@10": 0.8802,
+        "R@20": 0.8802
+      },
+      "50": {
+        "R@1": 0.8364,
+        "R@5": 0.9085,
+        "R@10": 0.9085,
+        "R@20": 0.9085
+      }
+    },
+    "query_augmentation": {
+      "aug_optuna": {
+        "R@1": 0.8929,
+        "R@5": 0.9893,
+        "R@10": 1.0,
+        "R@20": 1.0
+      },
+      "aug_clip_only": {
+        "R@1": 0.5628,
+        "R@5": 0.7507,
+        "R@10": 0.7994,
+        "R@20": 0.851
+      }
+    },
+    "phase4_champion": {
+      "name": "Optuna joint (200 trials)",
+      "metrics": {
+        "R@1": 0.8948,
+        "R@5": 0.9893,
+        "R@10": 1.0,
+        "R@20": 1.0
+      },
+      "delta_vs_p3": 0.22
+    },
+    "error_analysis": {
+      "n_success": 919,
+      "n_fail": 108,
+      "close_miss_top5_pct": 89.8,
+      "close_miss_top10_pct": 100.0,
+      "not_in_topK_pct": 0.0,
+      "per_category": {
+        "denim": {
+          "fail_rate": 0.1558,
+          "n_fail": 12,
+          "n_total": 77,
+          "med_rank": 2.0,
+          "med_gap": 0.0041
+        },
+        "jackets": {
+          "fail_rate": 0.0759,
+          "n_fail": 6,
+          "n_total": 79,
+          "med_rank": 3.0,
+          "med_gap": 0.0256
+        },
+        "pants": {
+          "fail_rate": 0.1319,
+          "n_fail": 19,
+          "n_total": 144,
+          "med_rank": 2.0,
+          "med_gap": 0.0084
+        },
+        "shirts": {
+          "fail_rate": 0.0248,
+          "n_fail": 3,
+          "n_total": 121,
+          "med_rank": 2.0,
+          "med_gap": 0.0039
+        },
+        "shorts": {
+          "fail_rate": 0.1266,
+          "n_fail": 20,
+          "n_total": 158,
+          "med_rank": 2.5,
+          "med_gap": 0.0167
+        },
+        "suiting": {
+          "fail_rate": 0.0,
+          "n_fail": 0,
+          "n_total": 3,
+          "med_rank": 0.0,
+          "med_gap": 0.0
+        },
+        "sweaters": {
+          "fail_rate": 0.0,
+          "n_fail": 0,
+          "n_total": 74,
+          "med_rank": 0.0,
+          "med_gap": 0.0
+        },
+        "sweatshirts": {
+          "fail_rate": 0.2126,
+          "n_fail": 27,
+          "n_total": 127,
+          "med_rank": 2.0,
+          "med_gap": 0.0104
+        },
+        "tees": {
+          "fail_rate": 0.0861,
+          "n_fail": 21,
+          "n_total": 244,
+          "med_rank": 2.0,
+          "med_gap": 0.0094
+        }
+      }
+    },
+    "confidence_calibration": {
+      "success_mean_score": 0.9622,
+      "failure_mean_score": 0.946,
+      "score_separation": 0.0162,
+      "calibration_bins": {
+        "(-0.0009955300000000001, 0.00544]": {
+          "accuracy": 0.5631,
+          "count": 103
+        },
+        "(0.00544, 0.0126]": {
+          "accuracy": 0.6602,
+          "count": 103
+        },
+        "(0.0126, 0.0178]": {
+          "accuracy": 0.8725,
+          "count": 102
+        },
+        "(0.0178, 0.0255]": {
+          "accuracy": 0.8932,
+          "count": 103
+        },
+        "(0.0255, 0.0337]": {
+          "accuracy": 0.9806,
+          "count": 103
+        },
+        "(0.0337, 0.0433]": {
+          "accuracy": 0.9804,
+          "count": 102
+        },
+        "(0.0433, 0.0542]": {
+          "accuracy": 1.0,
+          "count": 103
+        },
+        "(0.0542, 0.0675]": {
+          "accuracy": 1.0,
+          "count": 102
+        },
+        "(0.0675, 0.0853]": {
+          "accuracy": 1.0,
+          "count": 103
+        },
+        "(0.0853, 0.165]": {
+          "accuracy": 1.0,
+          "count": 103
+        }
+      },
+      "threshold_rejection": {
+        "0.005": {
+          "n_accepted": 934,
+          "r1_accepted": 0.9272,
+          "n_rejected": 93,
+          "r1_rejected": 0.5699
+        },
+        "0.01": {
+          "n_accepted": 855,
+          "r1_accepted": 0.9591,
+          "n_rejected": 172,
+          "r1_rejected": 0.5756
+        },
+        "0.02": {
+          "n_accepted": 683,
+          "r1_accepted": 0.9868,
+          "n_rejected": 344,
+          "r1_rejected": 0.7122
+        },
+        "0.03": {
+          "n_accepted": 560,
+          "r1_accepted": 0.9964,
+          "n_rejected": 467,
+          "r1_rejected": 0.773
+        },
+        "0.05": {
+          "n_accepted": 353,
+          "r1_accepted": 1.0,
+          "n_rejected": 674,
+          "r1_rejected": 0.8398
+        }
+      }
+    },
+    "per_category": {
+      "phase3": {
+        "denim": 0.6104,
+        "jackets": 0.7468,
+        "pants": 0.6458,
+        "shirts": 0.8595,
+        "shorts": 0.5063,
+        "suiting": 1.0,
+        "sweaters": 0.7973,
+        "sweatshirts": 0.6457,
+        "tees": 0.6803
+      },
+      "phase4_champion": {
+        "denim": 0.8442,
+        "jackets": 0.9241,
+        "pants": 0.8681,
+        "shirts": 0.9752,
+        "shorts": 0.8734,
+        "suiting": 1.0,
+        "sweaters": 1.0,
+        "sweatshirts": 0.7874,
+        "tees": 0.9139
+      }
+    }
+  }
+}
