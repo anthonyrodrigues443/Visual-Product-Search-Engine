@@ -1,0 +1,162 @@
+{
+  "phase5_anthony": {
+    "date": "2026-04-25",
+    "researcher": "Anthony Rodrigues",
+    "eval_products": 300,
+    "eval_gallery": 300,
+    "eval_queries": 1027,
+    "research_question": "What is the best visual-only R@1 (no text metadata)?",
+    "focus": "VISUAL-ONLY FRONTIER \u2014 no text leakage",
+    "clip_baseline": {
+      "R@1": 0.5531,
+      "R@5": 0.7478,
+      "R@10": 0.8053,
+      "R@20": 0.853
+    },
+    "visual_only_optuna": {
+      "params": {
+        "w_clip": 1.0,
+        "w_color": 1.0,
+        "w_spatial": 0.25
+      },
+      "metrics": {
+        "R@1": 0.6602,
+        "R@5": 0.8014,
+        "R@10": 0.8598,
+        "R@20": 0.9036
+      },
+      "n_trials": 300,
+      "delta_vs_clip": 0.1071,
+      "delta_vs_mark_oracle": -0.035
+    },
+    "visual_cat_filter": {
+      "R@1": 0.7293,
+      "R@5": 0.8822,
+      "R@10": 0.9357,
+      "R@20": 0.9737
+    },
+    "ablation": {
+      "CLIP only": {
+        "R@1": 0.5531,
+        "R@5": 0.7478,
+        "R@10": 0.8053,
+        "R@20": 0.853
+      },
+      "Color 48D only": {
+        "R@1": 0.3379,
+        "R@5": 0.5239,
+        "R@10": 0.6125,
+        "R@20": 0.7069
+      },
+      "Spatial 192D only": {
+        "R@1": 0.3408,
+        "R@5": 0.4898,
+        "R@10": 0.5686,
+        "R@20": 0.6446
+      },
+      "CLIP + color": {
+        "R@1": 0.6456,
+        "R@5": 0.8023,
+        "R@10": 0.8598,
+        "R@20": 0.9026
+      },
+      "CLIP + spatial": {
+        "R@1": 0.5852,
+        "R@5": 0.7614,
+        "R@10": 0.8189,
+        "R@20": 0.8588
+      },
+      "Color + spatial (no CLIP)": {
+        "R@1": 0.3574,
+        "R@5": 0.5365,
+        "R@10": 0.6222,
+        "R@20": 0.7176
+      },
+      "CLIP + color + spatial (full)": {
+        "R@1": 0.6602,
+        "R@5": 0.8014,
+        "R@10": 0.8598,
+        "R@20": 0.9036
+      },
+      "CLIP+color+spatial + cat filter": {
+        "R@1": 0.7293,
+        "R@5": 0.8822,
+        "R@10": 0.9357,
+        "R@20": 0.9737
+      }
+    },
+    "pca_whitening": {
+      "64": {
+        "R@1": 0.6826,
+        "R@5": 0.8588,
+        "R@10": 0.9143,
+        "R@20": 0.9494
+      },
+      "128": {
+        "R@1": 0.6816,
+        "R@5": 0.8705,
+        "R@10": 0.9143,
+        "R@20": 0.9435
+      },
+      "256": {
+        "R@1": 0.6358,
+        "R@5": 0.8208,
+        "R@10": 0.8549,
+        "R@20": 0.8929
+      }
+    },
+    "per_category": {
+      "clip_baseline": {
+        "denim": 0.4416,
+        "jackets": 0.5949,
+        "pants": 0.5278,
+        "shirts": 0.7438,
+        "shorts": 0.4051,
+        "suiting": 0.6667,
+        "sweaters": 0.6351,
+        "sweatshirts": 0.5512,
+        "tees": 0.5656
+      },
+      "visual_optuna": {
+        "denim": 0.6104,
+        "jackets": 0.7595,
+        "pants": 0.6458,
+        "shirts": 0.8347,
+        "shorts": 0.481,
+        "suiting": 1.0,
+        "sweaters": 0.7838,
+        "sweatshirts": 0.6457,
+        "tees": 0.6475
+      },
+      "visual_cat_filter": {
+        "denim": 0.6883,
+        "jackets": 0.7975,
+        "pants": 0.6944,
+        "shirts": 0.9008,
+        "shorts": 0.5253,
+        "suiting": 1.0,
+        "sweaters": 0.9324,
+        "sweatshirts": 0.6929,
+        "tees": 0.7418
+      }
+    },
+    "error_analysis": {
+      "champion_name": "Visual + Category Filter",
+      "n_success": 749,
+      "n_fail": 278,
+      "close_miss_5_pct": 56.5,
+      "close_miss_10_pct": 76.3,
+      "median_gap": 0.0154
+    },
+    "phase5_champion": {
+      "name": "Visual + Category Filter",
+      "metrics": {
+        "R@1": 0.7293,
+        "R@5": 0.8822,
+        "R@10": 0.9357,
+        "R@20": 0.9737
+      },
+      "production_valid": true
+    }
+  }
+}
