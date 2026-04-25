@@ -1,0 +1,225 @@
+{
+  "phase5_llm_comparison": {
+    "date": "2026-04-25",
+    "researcher": "Anthony Rodrigues",
+    "research_question": "Can frontier LLM text-based matching beat visual-only retrieval?",
+    "headline": "Visual-only BEATS cross-modal text retrieval: R@1=0.5531 vs 0.2084. Even with rich product descriptions, pixel-level matching outperforms text matching.",
+    "results": {
+      "visual_to_visual": {
+        "R@1": 0.5531,
+        "R@5": 0.7478,
+        "R@10": 0.8053,
+        "R@20": 0.853
+      },
+      "text_to_text": {
+        "R@1": 0.8199,
+        "R@5": 1.0,
+        "R@10": 1.0,
+        "R@20": 1.0
+      },
+      "visual_to_text": {
+        "R@1": 0.2084,
+        "R@5": 0.4294,
+        "R@10": 0.5628,
+        "R@20": 0.6981
+      },
+      "text_to_visual": {
+        "R@1": 0.1986,
+        "R@5": 0.4693,
+        "R@10": 0.6436,
+        "R@20": 0.7722
+      },
+      "hybrid_gallery": {
+        "best_alpha": 0.7,
+        "metrics": {
+          "R@1": 0.5823,
+          "R@5": 0.7965,
+          "R@10": 0.852,
+          "R@20": 0.9075
+        },
+        "alpha_scan": {
+          "0.0": {
+            "R@1": 0.2084,
+            "R@5": 0.4294,
+            "R@10": 0.5628,
+            "R@20": 0.6981
+          },
+          "0.1": {
+            "R@1": 0.2756,
+            "R@5": 0.5229,
+            "R@10": 0.6641,
+            "R@20": 0.777
+          },
+          "0.2": {
+            "R@1": 0.3554,
+            "R@5": 0.628,
+            "R@10": 0.7381,
+            "R@20": 0.8354
+          },
+          "0.3": {
+            "R@1": 0.4216,
+            "R@5": 0.6981,
+            "R@10": 0.7945,
+            "R@20": 0.8958
+          },
+          "0.4": {
+            "R@1": 0.4888,
+            "R@5": 0.7683,
+            "R@10": 0.8569,
+            "R@20": 0.927
+          },
+          "0.5": {
+            "R@1": 0.5394,
+            "R@5": 0.8023,
+            "R@10": 0.8773,
+            "R@20": 0.9348
+          },
+          "0.6": {
+            "R@1": 0.5784,
+            "R@5": 0.8082,
+            "R@10": 0.8763,
+            "R@20": 0.9182
+          },
+          "0.7": {
+            "R@1": 0.5823,
+            "R@5": 0.7965,
+            "R@10": 0.852,
+            "R@20": 0.9075
+          },
+          "0.8": {
+            "R@1": 0.5755,
+            "R@5": 0.7819,
+            "R@10": 0.8354,
+            "R@20": 0.8948
+          },
+          "0.9": {
+            "R@1": 0.5638,
+            "R@5": 0.7663,
+            "R@10": 0.8189,
+            "R@20": 0.8715
+          },
+          "1.0": {
+            "R@1": 0.5531,
+            "R@5": 0.7478,
+            "R@10": 0.8053,
+            "R@20": 0.853
+          }
+        }
+      },
+      "head_to_head": {
+        "Our visual pipeline": {
+          "R@1": 0.5531,
+          "query_input": "Image pixels",
+          "gallery_input": "Image pixels",
+          "production_valid": true,
+          "latency_per_query_ms": 512.2,
+          "cost_per_1k_queries": 0.0
+        },
+        "LLM cross-modal (best case)": {
+          "R@1": 0.2084,
+          "query_input": "Image pixels (CLIP)",
+          "gallery_input": "Text descriptions",
+          "production_valid": true,
+          "latency_per_query_ms": 512.2,
+          "cost_per_1k_queries": 0.0
+        },
+        "Hybrid gallery (vis+text)": {
+          "R@1": 0.5823,
+          "query_input": "Image pixels (CLIP)",
+          "gallery_input": "Visual+Text (\u03b1=0.7)",
+          "production_valid": true,
+          "latency_per_query_ms": 512.2,
+          "cost_per_1k_queries": 0.0
+        },
+        "LLM text-only (oracle)": {
+          "R@1": 0.8199,
+          "query_input": "Text description (LEAKED)",
+          "gallery_input": "Text descriptions",
+          "production_valid": false,
+          "latency_per_query_ms": 39.6,
+          "cost_per_1k_queries": 0.0
+        },
+        "GPT-5.4 vision (estimated)": {
+          "R@1": null,
+          "query_input": "Image \u2192 GPT-5.4 vision API",
+          "gallery_input": "Text descriptions",
+          "production_valid": true,
+          "latency_per_query_ms": 2000,
+          "cost_per_1k_queries": 15.0
+        },
+        "Claude Opus 4.6 vision (estimated)": {
+          "R@1": null,
+          "query_input": "Image \u2192 Claude vision API",
+          "gallery_input": "Text descriptions",
+          "production_valid": true,
+          "latency_per_query_ms": 3000,
+          "cost_per_1k_queries": 20.0
+        }
+      },
+      "per_category": {
+        "visual_to_visual": {
+          "denim": 0.4416,
+          "jackets": 0.5949,
+          "pants": 0.5278,
+          "shirts": 0.7438,
+          "shorts": 0.4051,
+          "suiting": 0.6667,
+          "sweaters": 0.6351,
+          "sweatshirts": 0.5512,
+          "tees": 0.5656
+        },
+        "visual_to_text": {
+          "denim": 0.0909,
+          "jackets": 0.1899,
+          "pants": 0.1597,
+          "shirts": 0.2562,
+          "shorts": 0.2468,
+          "suiting": 0.3333,
+          "sweaters": 0.0946,
+          "sweatshirts": 0.252,
+          "tees": 0.2418
+        },
+        "text_to_text": {
+          "denim": 0.8571,
+          "jackets": 0.8481,
+          "pants": 0.7708,
+          "shirts": 0.9008,
+          "shorts": 0.8797,
+          "suiting": 1.0,
+          "sweaters": 0.9054,
+          "sweatshirts": 0.8189,
+          "tees": 0.7213
+        },
+        "hybrid": {
+          "denim": 0.4935,
+          "jackets": 0.6329,
+          "pants": 0.5208,
+          "shirts": 0.719,
+          "shorts": 0.481,
+          "suiting": 0.6667,
+          "sweaters": 0.6486,
+          "sweatshirts": 0.5591,
+          "tees": 0.6189
+        },
+        "text_wins_n_categories": 0
+      },
+      "complementarity": {
+        "both_correct": 126,
+        "vis_only_correct": 442,
+        "txt_only_correct": 88,
+        "neither_correct": 371,
+        "hybrid_unique_wins": 38,
+        "jaccard_overlap": 0.192,
+        "union_oracle_r1": 0.6388
+      }
+    },
+    "timings": {
+      "query_visual_extraction_s": 526.1,
+      "gallery_visual_extraction_s": 140.6,
+      "gallery_text_extraction_s": 12.0,
+      "query_text_extraction_s": 40.7,
+      "ms_per_visual_query": 512.2,
+      "ms_per_text_query": 39.6
+    }
+  }
+}
