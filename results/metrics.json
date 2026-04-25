@@ -733,6 +733,262 @@
     ],
     "phase4_best_r1": 0.6952
   },
+  "phase5_mark": {
+    "date": "2026-04-24",
+    "researcher": "Mark Rodrigues",
+    "eval_products": 300,
+    "eval_gallery": 300,
+    "eval_queries": 1027,
+    "research_question": "Can text-guided reranking of visual top-K push R@1 above 0.70? Where does each component contribute?",
+    "headline_finding": "Two-stage (visual→text) R@1=0.8169, Three-stage R@1=0.9065. Ablation: text rerank is +0.2366 R@1, category filter is most critical component. Claude Opus 4.6 zero-shot reranking accuracy=0.0.",
+    "experiments": {
+      "5M1_baseline": {
+        "R@1": 0.6699123661148978,
+        "R@5": 0.8383641674780915,
+        "R@10": 0.887049659201558,
+        "R@20": 0.943524829600779
+      },
+      "5M2_text_only": {
+        "R@1": 0.8237585199610516,
+        "R@5": 1.0,
+        "R@10": 1.0,
+        "R@20": 1.0
+      },
+      "5M2_cat_text_only": {
+        "R@1": 0.8179162609542356,
+        "R@5": 1.0,
+        "R@10": 1.0,
+        "R@20": 1.0
+      },
+      "5M3_two_stage": {
+        "K5": {
+          "R@1": 0.8169425511197663,
+          "R@5": 0.8383641674780915,
+          "R@10": 0.8383641674780915,
+          "R@20": 0.8383641674780915
+        },
+        "K5_delta": 0.147,
+        "K10": {
+          "R@1": 0.8607594936708861,
+          "R@5": 0.887049659201558,
+          "R@10": 0.887049659201558,
+          "R@20": 0.887049659201558
+        },
+        "K10_delta": 0.1908,
+        "K20": {
+          "R@1": 0.9036027263875365,
+          "R@5": 0.943524829600779,
+          "R@10": 0.943524829600779,
+          "R@20": 0.943524829600779
+        },
+        "K20_delta": 0.2337
+      },
+      "5M4_three_stage": {
+        "best_params": {
+          "k": 20,
+          "w_text": 0.8
+        },
+        "best_r1": 0.9065238558909445,
+        "R@1": 0.9065238558909445,
+        "R@5": 0.943524829600779,
+        "R@10": 0.943524829600779,
+        "R@20": 0.943524829600779
+      },
+      "5M5_ablation": {
+        "full": {
+          "R@1": 0.9065238558909445,
+          "R@5": 0.943524829600779,
+          "R@10": 0.943524829600779,
+          "R@20": 0.943524829600779
+        },
+        "no_text": {
+          "R@1": 0.6699123661148978,
+          "R@5": 0.8383641674780915,
+          "R@10": 0.887049659201558,
+          "R@20": 0.943524829600779,
+          "delta_vs_full": -0.2366
+        },
+        "no_color": {
+          "R@1": 0.8490749756572541,
+          "R@5": 0.9065238558909445,
+          "R@10": 0.9065238558909445,
+          "R@20": 0.9065238558909445,
+          "delta_vs_full": -0.0574
+        },
+        "no_cat": {
+          "R@1": 0.8344693281402142,
+          "R@5": 0.8656280428432327,
+          "R@10": 0.8656280428432327,
+          "R@20": 0.8656280428432327,
+          "delta_vs_full": -0.0721
+        },
+        "no_clip": {
+          "R@1": 0.92,
+          "R@5": 0.99,
+          "R@10": 0.99,
+          "R@20": 0.99,
+          "delta_vs_full": 0.0135
+        }
+      },
+      "5M6_llm_comparison": {
+        "n_test_cases": 35,
+        "n_close_miss": 25,
+        "n_success": 10,
+        "claude_opus_4_7_accuracy": 0.0,
+        "our_text_reranker_accuracy": 0.9142857142857143,
+        "winner": "our_model",
+        "llm_results_sample": [
+          {
+            "case_num": 0,
+            "correct_rank_visual": 4,
+            "correct_idx_1based": 4,
+            "llm_chosen": -1,
+            "llm_correct": false,
+            "our_text_correct": true
+          },
+          {
+            "case_num": 1,
+            "correct_rank_visual": 2,
+            "correct_idx_1based": 2,
+            "llm_chosen": -1,
+            "llm_correct": false,
+            "our_text_correct": true
+          },
+          {
+            "case_num": 2,
+            "correct_rank_visual": 2,
+            "correct_idx_1based": 2,
+            "llm_chosen": -1,
+            "llm_correct": false,
+            "our_text_correct": true
+          },
+          {
+            "case_num": 3,
+            "correct_rank_visual": 1,
+            "correct_idx_1based": 1,
+            "llm_chosen": -1,
+            "llm_correct": false,
+            "our_text_correct": true
+          },
+          {
+            "case_num": 4,
+            "correct_rank_visual": 4,
+            "correct_idx_1based": 4,
+            "llm_chosen": -1,
+            "llm_correct": false,
+            "our_text_correct": true
+          }
+        ]
+      }
+    },
+    "master_leaderboard": [
+      {
+        "model": "ResNet50 baseline (Anthony P1)",
+        "R@1": 0.307,
+        "R@5": 0.559,
+        "R@10": 0.659,
+        "R@20": 0.759,
+        "phase": "Phase 1"
+      },
+      {
+        "model": "EfficientNet-B0 (Mark P1)",
+        "R@1": 0.369,
+        "R@5": 0.607,
+        "R@10": 0.708,
+        "R@20": 0.804,
+        "phase": "Phase 1"
+      },
+      {
+        "model": "ResNet50 + color rerank α=0.5 (M P1)",
+        "R@1": 0.405,
+        "R@5": 0.647,
+        "R@10": 0.757,
+        "R@20": 0.855,
+        "phase": "Phase 1"
+      },
+      {
+        "model": "CLIP B/32 bare (Mark P2)",
+        "R@1": 0.48,
+        "R@5": 0.722,
+        "R@10": 0.807,
+        "R@20": 0.885,
+        "phase": "Phase 2"
+      },
+      {
+        "model": "CLIP B/32 + color α=0.5 (Mark P2)",
+        "R@1": 0.576,
+        "R@5": 0.789,
+        "R@10": 0.858,
+        "R@20": 0.926,
+        "phase": "Phase 2"
+      },
+      {
+        "model": "CLIP L/14 bare (Anthony P3)",
+        "R@1": 0.553,
+        "R@5": 0.748,
+        "R@10": 0.805,
+        "R@20": 0.853,
+        "phase": "Phase 3"
+      },
+      {
+        "model": "Text-only CLIP prompt (Anthony P3)",
+        "R@1": 0.602,
+        "R@5": 0.957,
+        "R@10": 1.0,
+        "R@20": 1.0,
+        "phase": "Phase 3"
+      },
+      {
+        "model": "CLIP L/14 + color (Anthony P3)",
+        "R@1": 0.642,
+        "R@5": 0.808,
+        "R@10": 0.857,
+        "R@20": 0.902,
+        "phase": "Phase 3"
+      },
+      {
+        "model": "CLIP B/32 + cat + color α=0.4 (M P3)",
+        "R@1": 0.683,
+        "R@5": 0.862,
+        "R@10": 0.913,
+        "R@20": 0.97,
+        "phase": "Phase 3 ★"
+      },
+      {
+        "model": "Per-cat alpha oracle (Mark P4)",
+        "R@1": 0.695,
+        "R@5": 0.866,
+        "R@10": 0.911,
+        "R@20": 0.971,
+        "phase": "Phase 4"
+      },
+      {
+        "model": "Two-stage K=5 visual→text (M P5)",
+        "R@1": 0.8169425511197663,
+        "R@5": 0.8383641674780915,
+        "R@10": 0.8383641674780915,
+        "R@20": 0.8383641674780915,
+        "phase": "Phase 5"
+      },
+      {
+        "model": "Two-stage K=10 visual→text (M P5)",
+        "R@1": 0.8607594936708861,
+        "R@5": 0.887049659201558,
+        "R@10": 0.887049659201558,
+        "R@20": 0.887049659201558,
+        "phase": "Phase 5"
+      },
+      {
+        "model": "Three-stage best (M P5)",
+        "R@1": 0.9065238558909445,
+        "R@5": 0.943524829600779,
+        "R@10": 0.943524829600779,
+        "R@20": 0.943524829600779,
+        "phase": "Phase 5 ★"
+      }
+    ],
+    "best_r1_overall": 0.9065238558909445
+  },
   "phase4_anthony": {
     "date": "2026-04-24",
     "researcher": "Anthony Rodrigues",
