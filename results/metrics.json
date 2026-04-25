@@ -740,7 +740,7 @@
     "eval_gallery": 300,
     "eval_queries": 1027,
     "research_question": "Can text-guided reranking of visual top-K push R@1 above 0.70? Where does each component contribute?",
-    "headline_finding": "Two-stage (visual→text) R@1=0.8169, Three-stage R@1=0.9065. Ablation: text rerank is +0.2366 R@1, category filter is most critical component. Claude Opus 4.6 zero-shot reranking accuracy=0.0.",
+    "headline_finding": "Two-stage (visual\u2192text) R@1=0.8169, Three-stage R@1=0.9065. Ablation: text rerank is +0.2366 R@1, category filter is most critical component. Claude Opus 4.6 zero-shot reranking accuracy=0.0.",
     "experiments": {
       "5M1_baseline": {
         "R@1": 0.6699123661148978,
@@ -899,7 +899,7 @@
         "phase": "Phase 1"
       },
       {
-        "model": "ResNet50 + color rerank α=0.5 (M P1)",
+        "model": "ResNet50 + color rerank \u03b1=0.5 (M P1)",
         "R@1": 0.405,
         "R@5": 0.647,
         "R@10": 0.757,
@@ -915,7 +915,7 @@
         "phase": "Phase 2"
       },
       {
-        "model": "CLIP B/32 + color α=0.5 (Mark P2)",
+        "model": "CLIP B/32 + color \u03b1=0.5 (Mark P2)",
         "R@1": 0.576,
         "R@5": 0.789,
         "R@10": 0.858,
@@ -947,12 +947,12 @@
         "phase": "Phase 3"
       },
       {
-        "model": "CLIP B/32 + cat + color α=0.4 (M P3)",
+        "model": "CLIP B/32 + cat + color \u03b1=0.4 (M P3)",
         "R@1": 0.683,
         "R@5": 0.862,
         "R@10": 0.913,
         "R@20": 0.97,
-        "phase": "Phase 3 ★"
+        "phase": "Phase 3 \u2605"
       },
       {
         "model": "Per-cat alpha oracle (Mark P4)",
@@ -963,7 +963,7 @@
         "phase": "Phase 4"
       },
       {
-        "model": "Two-stage K=5 visual→text (M P5)",
+        "model": "Two-stage K=5 visual\u2192text (M P5)",
         "R@1": 0.8169425511197663,
         "R@5": 0.8383641674780915,
         "R@10": 0.8383641674780915,
@@ -971,7 +971,7 @@
         "phase": "Phase 5"
       },
       {
-        "model": "Two-stage K=10 visual→text (M P5)",
+        "model": "Two-stage K=10 visual\u2192text (M P5)",
         "R@1": 0.8607594936708861,
         "R@5": 0.887049659201558,
         "R@10": 0.887049659201558,
@@ -984,7 +984,7 @@
         "R@5": 0.943524829600779,
         "R@10": 0.943524829600779,
         "R@20": 0.943524829600779,
-        "phase": "Phase 5 ★"
+        "phase": "Phase 5 \u2605"
       }
     ],
     "best_r1_overall": 0.9065238558909445
@@ -1672,6 +1672,153 @@
       "query_text_extraction_s": 40.7,
       "ms_per_visual_query": 512.2,
       "ms_per_text_query": 39.6
+    }
+  },
+  "phase6_anthony": {
+    "attribution": {
+      "counts": {
+        "CLIP alone": 556,
+        "Failed (all systems)": 278,
+        "Color rescued": 123,
+        "Cat filter rescued": 53,
+        "Spatial rescued": 17
+      },
+      "per_category": {
+        "denim": {
+          "CLIP alone": 34,
+          "Cat filter rescued": 5,
+          "Color rescued": 13,
+          "Failed (all systems)": 24,
+          "Spatial rescued": 1
+        },
+        "jackets": {
+          "CLIP alone": 46,
+          "Cat filter rescued": 3,
+          "Color rescued": 13,
+          "Failed (all systems)": 16,
+          "Spatial rescued": 1
+        },
+        "pants": {
+          "CLIP alone": 76,
+          "Cat filter rescued": 7,
+          "Color rescued": 13,
+          "Failed (all systems)": 44,
+          "Spatial rescued": 4
+        },
+        "shirts": {
+          "CLIP alone": 87,
+          "Cat filter rescued": 5,
+          "Color rescued": 14,
+          "Failed (all systems)": 12,
+          "Spatial rescued": 3
+        },
+        "shorts": {
+          "CLIP alone": 61,
+          "Cat filter rescued": 3,
+          "Color rescued": 14,
+          "Failed (all systems)": 75,
+          "Spatial rescued": 5
+        },
+        "suiting": {
+          "CLIP alone": 2,
+          "Cat filter rescued": 0,
+          "Color rescued": 1,
+          "Failed (all systems)": 0,
+          "Spatial rescued": 0
+        },
+        "sweaters": {
+          "CLIP alone": 46,
+          "Cat filter rescued": 9,
+          "Color rescued": 13,
+          "Failed (all systems)": 5,
+          "Spatial rescued": 1
+        },
+        "sweatshirts": {
+          "CLIP alone": 69,
+          "Cat filter rescued": 5,
+          "Color rescued": 13,
+          "Failed (all systems)": 39,
+          "Spatial rescued": 1
+        },
+        "tees": {
+          "CLIP alone": 135,
+          "Cat filter rescued": 16,
+          "Color rescued": 29,
+          "Failed (all systems)": 63,
+          "Spatial rescued": 1
+        }
+      },
+      "total_queries": 1027
+    },
+    "similarity_decomposition": {
+      "success_means": {
+        "clip_sim": 0.9189160073074066,
+        "color_sim": 0.9810277528374473,
+        "spatial_sim": 0.059629577163542224,
+        "combined_sim": 0.9500961592582581
+      },
+      "failure_means": {
+        "clip_sim": 0.8484822835424821,
+        "color_sim": 0.949746181210168,
+        "spatial_sim": 0.0567629446925448,
+        "combined_sim": 0.899389787757997
+      },
+      "gaps": {
+        "clip_sim": 0.07043372376492452,
+        "color_sim": 0.03128157162727929,
+        "spatial_sim": 0.0028666324709974225
+      },
+      "most_discriminative": "clip_sim"
+    },
+    "failure_taxonomy": {
+      "mode_counts": {
+        "Mixed signals": 135,
+        "Both CLIP and color wrong": 52,
+        "Ambiguous (margins < 0.02)": 51,
+        "CLIP wrong, color right": 25,
+        "Color wrong, CLIP right": 15
+      },
+      "per_category_fail_rate": {
+        "denim": 0.3117,
+        "jackets": 0.2025,
+        "pants": 0.3056,
+        "shirts": 0.0992,
+        "shorts": 0.4747,
+        "suiting": 0.0,
+        "sweaters": 0.0676,
+        "sweatshirts": 0.3071,
+        "tees": 0.2582
+      },
+      "n_failures": 278,
+      "failure_rank_median": 5.0,
+      "failure_rank_75th": 10.0
+    },
+    "category_filter_impact": {
+      "n_helped": 294,
+      "n_hurt": 0,
+      "n_neutral": 733,
+      "total": 1027,
+      "median_improvement": 5.0,
+      "median_degradation": 0
+    },
+    "embedding_structure": {
+      "silhouette_clip": 0.0035216284450143576,
+      "silhouette_combined": -0.004378797020763159,
+      "silhouette_delta": -0.007900425465777516
+    },
+    "rank_anatomy": {
+      "mean_ranks": {
+        "CLIP_rank": 8.789678675754626,
+        "CLIP+color_rank": 6.08763388510224,
+        "Full_rank": 6.0,
+        "Champion_rank": 2.9269717624148
+      },
+      "r1_rates": {
+        "CLIP_rank": 0.5530671859785784,
+        "CLIP+color_rank": 0.6455696202531646,
+        "Full_rank": 0.6601752677702045,
+        "Champion_rank": 0.7293086660175268
+      }
     }
   }
 }
