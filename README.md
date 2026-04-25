@@ -27,7 +27,7 @@
 
 ## Current Status
 
-**Phase 4 complete** — Hyperparameter tuning + error analysis. Per-category alpha oracle reaches R@1=69.5%. 85.3% of failures are close misses (correct product in top-5), pointing to a top-5 text-metadata reranker as the Phase 5 intervention.
+**Phase 6 complete** — Explainability & model understanding. Production-valid champion: CLIP L/14 + color + spatial + category filter at R@1=72.9%. Mark's three-stage pipeline (visual top-20 → CLIP text rerank) reaches R@1=90.7% but requires query-side text metadata unavailable at inference.
 
 | Model | R@1 | R@5 | R@10 | R@20 | Dim | Notes |
 |-------|-----|-----|------|------|-----|-------|
@@ -40,12 +40,14 @@
 | CLIP ViT-B/32 + color rerank α=0.5 | 57.6% | 74.7% | 78.7% | 80.7% | — | Mark Phase 2 — color trick stacks on CLIP |
 | CLIP ViT-L/14 + color rerank α=0.5 | 64.2% | 83.1% | 85.3% | 85.3% | — | Anthony Phase 2 champion |
 | CLIP ViT-L/14 + color+spatial+text | 67.5% | 85.6% | 87.2% | 91.0% | — | Anthony Phase 3 champion |
-| **CLIP B/32 + cat.filter + color (α=0.4)** | **68.3%** | **86.2%** | **91.3%** | **97.0%** | — | **Mark Phase 3 champion — best overall** |
+| **CLIP B/32 + cat.filter + color (α=0.4)** | **68.3%** | **86.2%** | **91.3%** | **97.0%** | — | Mark Phase 3 champion |
+| CLIP L/14 + color+spatial + cat.filter (Optuna) | 72.9% | 88.2% | 93.6% | 97.4% | — | Anthony Phase 5 visual-only champion |
+| **Mark P5: Three-stage (visual top-20 → text rerank)** | **90.7%** | **94.4%** | **94.4%** | **94.4%** | — | **Mark Phase 5 — not prod-valid (needs query text)** |
 | FashionNet (published) | 53.0% | — | 73.0% | 76.4% | — | Fine-tuned, 2016 |
 | CLIP ViT-B/32 (published) | ~78% | — | ~93% | ~95% | 512 | Zero-shot, 2021 |
 | DINOv2 ViT-B/14 (published) | ~82% | — | ~95% | ~97% | 768 | Zero-shot, 2023 |
 
-**Best model so far:** Per-category alpha oracle (CLIP B/32 + cat.filter + color, per-cat α) — R@1=69.5%, R@20=97.0% (oracle). Production champion: CLIP B/32 + cat.filter + color α=0.4 — R@1=68.3%
+**Best model so far:** Mark P5 three-stage pipeline — R@1=90.7% (not prod-valid). Production-valid champion: CLIP L/14 + color+spatial + category filter (Optuna) — R@1=72.9%, R@20=97.4%
 
 ---
 
@@ -59,13 +61,13 @@
 
 4. **48D color histogram alone beats 2048D ResNet50, and remains efficient at Phase 3.** Fashion retrieval is fundamentally a color-matching problem at the fine-grained level. Color is the highest-signal-per-dimension feature across all phases.
 
-5. **96D color features (16 bins/channel) cause a catastrophic -23.2pp drop vs 48D.** Finer quantization produces sparse, lighting-sensitive histograms: the same navy-blue pixel lands in different bins across gallery and query views. Coarser bins (8/channel) are more robust to intra-class variation — the primary challenge in DeepFashion (Liu et al., 2016). More resolution ≠ better when the signal has systematic intra-class variation.
+5. **Category filter NEVER hurts (0/1,027 queries degraded).** Pure upside: 294 queries improved by a median of 5 rank positions. CLIP's fashion embedding space has a near-zero silhouette score (~0.004) — categories don't cluster naturally — validating why explicit category filtering adds +6.9pp R@1 with no downside risk.
 
 ---
 
 ## Models Compared
 
-**30+ configurations** across Phases 1–4 (Phase 1: ResNet50, EfficientNet, color features; Phase 2: CLIP ViT-B/32, ViT-L/14, DINOv2, color reranking; Phase 3: spatial color, LBP, HOG, text metadata, category-conditioned retrieval, K-means color, DINOv2 patch pooling, GeM pooling, feature ablation; Phase 4: per-category alpha sweep, 96D color resolution, multiplicative fusion, baseline revalidation, error analysis).
+**40+ configurations** across Phases 1–6 (Phase 1: ResNet50, EfficientNet, color features; Phase 2: CLIP ViT-B/32, ViT-L/14, DINOv2, color reranking; Phase 3: spatial color, LBP, HOG, text metadata, category-conditioned retrieval, K-means color, DINOv2 patch pooling, GeM pooling, feature ablation; Phase 4: per-category alpha sweep, 96D color resolution, multiplicative fusion, baseline revalidation, error analysis; Phase 5: visual-only Optuna, PCA whitening, LLM comparison, two-stage and three-stage text reranking, visual ablation; Phase 6: per-query feature attribution, similarity decomposition, failure taxonomy, category filter impact, embedding structure analysis).
 
 ---
 
@@ -198,6 +200,57 @@ Product image (52,591 DeepFashion In-Shop images)
 **Surprise:** 96D color (16 bins/channel) causes a catastrophic -23.2pp R@1 drop vs the 48D champion. Higher resolution creates sparse, lighting-sensitive histograms where the same navy-blue pixel lands in different bins across gallery and query images. Coarser 8-bin quantization is more robust to intra-class lighting variation — the primary challenge in DeepFashion product retrieval. More bins ≠ more signal when the source has systematic variation.<br><br>
 **Research:** Babenko et al., 2014 (ECCV) — compact descriptors with appropriate pooling outperform high-dimensional sparse ones; directly predicted the 96D failure. Johnson et al., 2019 (FAISS, IEEE TBMD) — per-category index partitioning validates the category-conditioned architecture; their recall-precision tradeoff analysis informed the per-category alpha sweep design.<br><br>
 **Best Model So Far:** Per-category alpha oracle (CLIP B/32 + cat.filter + per-cat α) — R@1=69.5%, R@20=97.0% (oracle upper bound; production champion remains CLIP B/32 + cat.filter + color α=0.4 at R@1=68.3%)
+
+</td>
+</tr>
+</table>
+
+### Phase 5: Advanced Techniques + Ablation + LLM Comparison — 2026-04-25
+
+<table>
+<tr>
+<td valign="top" width="38%">
+
+**Advanced Run 1 (Visual-Only):** Optuna (300 trials) tunes CLIP+color+spatial weights; adding category filter crosses the 0.70 barrier at R@1=0.7293, beating Mark's Phase 4 oracle by +3.4pp. Ablation confirms CLIP contributes +30.3pp, color +7.5pp, category filter +6.9pp, spatial only +1.5pp.<br><br>
+**Advanced Run 2 (Text Reranking):** Two-stage pipeline: CLIP visual top-20 → CLIP B/32 text rerank achieves R@1=0.9065 (+23.7pp vs baseline). CLIP B/32 text-only alone hits R@5=1.000. Optimal config: K=20, w_text=0.8 in three-stage blend.
+
+</td>
+<td align="center" width="24%">
+
+<img src="results/phase5_mark_results.png" width="220">
+
+</td>
+<td valign="top" width="38%">
+
+**Combined Insight:** The two runs define the full performance range — visual-only ceiling at R@1=72.9% (production-valid), text-reranked ceiling at R@1=90.7% (requires query metadata). The 17.8pp gap is the cost of the modality constraint; closing it requires either CLIP fine-tuning on fashion or sourcing query-side text at inference.<br><br>
+**Surprise:** Removing CLIP visual entirely from Mark's pipeline improves R@1 from 0.9065 to 0.9200. When precise text descriptions and color histograms are available, CLIP visual adds noise from studio lighting and pose variation rather than signal — the modality gap in the blend hurts more than the semantic information helps.<br><br>
+**Research:** Ji et al., 2022 (CLIP4Clip, arXiv) — text-guided retrieval outperforms visual-only when descriptions are rich, directly motivated the two-stage design. Babenko et al., 2014 (ECCV) — PCA-64 whitening decorrelates CLIP's redundant dimensions, explaining the +2.2pp gain from whitening.<br><br>
+**Best Model So Far:** Mark P5 three-stage pipeline — R@1=90.7% (not prod-valid). Production champion: CLIP L/14 + color+spatial + category filter (Optuna) — R@1=72.9%
+
+</td>
+</tr>
+</table>
+
+### Phase 6: Explainability & Model Understanding — 2026-04-25
+
+<table>
+<tr>
+<td valign="top" width="38%">
+
+**Explainability Run:** Six attribution experiments on the Phase 5 champion (R@1=0.7293). Per-query attribution: CLIP alone handles 54.1% of queries, color rescues 12.0%, category filter rescues 5.2%, spatial 1.7%, and 27.1% remain failures across all variants. Similarity decomposition: CLIP success-failure gap = 0.070, color gap = 0.031 (CLIP is 2.25× more discriminative). Category filter impact: 294 queries improved by median 5 ranks, 0 queries hurt.
+
+</td>
+<td align="center" width="24%">
+
+<img src="results/phase6_anthony_explainability.png" width="220">
+
+</td>
+<td valign="top" width="38%">
+
+**Combined Insight:** The system is CLIP-first with targeted supplements. Color rescues exactly the queries where CLIP underweights fine color differences; category filtering eliminates cross-category confusion the embedding space can't resolve. Spatial features rescue only 1.7% — they could be removed (saving 192D) with near-zero impact.<br><br>
+**Surprise:** Category filter NEVER hurts — 0 of 1,027 queries were degraded. Near-zero embedding silhouette (~0.004) confirms fashion categories don't cluster in CLIP space, validating why explicit filtering is pure upside. Shorts are 7× harder than sweaters (47.5% vs 6.8% fail rate), and 48.6% of all failures show "mixed signals" where CLIP and color disagree — genuine visual ambiguity only fine-tuning can resolve.<br><br>
+**Research:** Liu et al., 2016 (DeepFashion, CVPR) — intra-class variation is the primary fashion retrieval challenge; our failure taxonomy validates this with shorts (extreme style diversity) dominating failures. Radford et al., 2021 (CLIP, ICML) — CLIP's vision-language pretraining creates the semantic space we analyze; silhouette ~0 confirms categories share structural features (collars, hemlines) across CLIP's supervision.<br><br>
+**Best Model So Far:** CLIP L/14 + color+spatial + category filter (Optuna) — R@1=72.9%, R@20=97.4% (production-valid)
 
 </td>
 </tr>
