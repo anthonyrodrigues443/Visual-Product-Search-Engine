@@ -1,0 +1,41 @@
+# Visual Product Search Engine — Production Configuration
+# Champion: CLIP ViT-L/14 + Color + Spatial + Category Filter
+# R@1=0.7293 on DeepFashion In-Shop (300 products, 1027 queries)
+
+model:
+  backbone: "ViT-L-14"
+  pretrained: "openai"
+  embedding_dim: 768
+
+features:
+  color:
+    rgb_bins: 8        # 8 bins/channel → 24D RGB histogram
+    hsv_bins: 8        # 8 bins/channel → 24D HSV histogram
+    total_dim: 48
+  spatial:
+    grid_rows: 4
+    grid_cols: 4
+    bins: 4            # 4×4×4×3 = 192D spatial color grid
+    total_dim: 192
+
+fusion:
+  w_clip: 1.0
+  w_color: 1.0
+  w_spatial: 0.25
+
+retrieval:
+  category_filter: true
+  top_k: 20
+  faiss_metric: "inner_product"
+
+dataset:
+  name: "Marqo/deepfashion-inshop"
+  split: "data"
+  eval_products: 300
+  test_frac: 0.2
+  seed: 42
+
+inference:
+  batch_size: 32
+  image_resize: 224
+  device: "cpu"
