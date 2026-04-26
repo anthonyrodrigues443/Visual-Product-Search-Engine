@@ -227,6 +227,36 @@ KMP_DUPLICATE_LIB_OK=TRUE python -m pytest tests/ -v
 
 ---
 
+## Iteration Summary
+
+### Phase 7: Production Polish — Testing, Deployment, Final Report — 2026-04-26
+
+<table>
+<tr>
+<td valign="top" width="38%">
+
+**Pipeline + Unit Tests:** Built importable pipeline (`src/train.py`, `src/predict.py`, `src/evaluate.py`) + `config/config.yaml` for the Optuna-tuned champion (w_clip=1.0, w_color=1.0, w_spatial=0.25). 29 unit tests (data splits, feature extractors, recall metrics) all passing in 8s. Rewrote README with mermaid architecture, 16-row results table, component attribution. Added HuggingFace-style model card and full 32-experiment log.<br><br>
+**Integration + Deployment:** Added 30 more tests (12 integration, 8 benchmark, 10 API), bringing the suite to 59 tests in ~17s. Shipped FastAPI service (`api.py`) with lifespan engine load, two-stage Dockerfile, GitHub Actions CI (test + lint + docker-build), and a standalone benchmark profiler. Final consolidated research report (`reports/final_report.md`) ties 7 days of work into one shareable document.
+
+</td>
+<td align="center" width="24%">
+
+<img src="results/benchmark_latency.png" width="220">
+
+</td>
+<td valign="top" width="38%">
+
+**Combined Insight:** Anthony's pipeline + unit tests prove the system *works*; Mark's integration tests, benchmarks, FastAPI surface, and CI prove it *keeps working* and *deploys inside its latency budget*. Together they take this from research code that produced a number to a service you could mount behind a load balancer — measured FAISS search at 0.06ms median (faster than the 0.10ms README claim) and end-to-end ~170ms/query on CPU with real CLIP L/14.<br><br>
+**Surprise:** Patching `src.train._load_clip` alone left predict's local `from src.train import _load_clip` binding stale and triggered a real 1.5GB CLIP download in CI — the integration suite cost 17 minutes on the first run before the second patch was added. Lesson: when integration-testing modules with cross-imports, patch every binding by name.<br><br>
+**Research:** Zinkevich, *Rules of ML* — "keep the first model simple and get the infrastructure right" framed Phase 7 as the infrastructure layer. Twelve-Factor App (Wiggins) shaped the Dockerfile (env-driven config, single CMD, healthcheck). FastAPI lifespan API (Ramírez, 2024) replaces deprecated startup hooks for eager 1.5GB CLIP load.<br><br>
+**Best Model So Far:** Production-valid champion unchanged — CLIP L/14 + color + spatial + category filter (Optuna) — R@1=0.7293, R@20=0.9737. Non-production-valid frontier — Mark P5 three-stage text rerank — R@1=0.9065.
+
+</td>
+</tr>
+</table>
+
+---
+
 ## References
 
 1. Liu, Z. et al. (2016). "DeepFashion: Powering Robust Clothes Recognition and Retrieval." CVPR.
