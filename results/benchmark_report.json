@@ -1,0 +1,47 @@
+{
+  "model": "stub-768D",
+  "gallery_size": 100,
+  "n_queries": 50,
+  "feature_dim": 1008,
+  "build_time_s": 2.12,
+  "components": [
+    {
+      "name": "clip_forward_single",
+      "n_iter": 20,
+      "mean_ms": 0.849,
+      "median_ms": 0.818,
+      "p50": 0.82,
+      "p95": 1.33,
+      "p99": 1.33
+    },
+    {
+      "name": "color_features_single",
+      "n_iter": 50,
+      "mean_ms": 6.551,
+      "median_ms": 6.455,
+      "p50": 6.455,
+      "p95": 7.576,
+      "p99": 7.839
+    },
+    {
+      "name": "spatial_features_single",
+      "n_iter": 50,
+      "mean_ms": 11.795,
+      "median_ms": 11.482,
+      "p50": 11.485,
+      "p95": 13.365,
+      "p99": 16.962
+    },
+    {
+      "name": "faiss_search_single",
+      "n_iter": 200,
+      "mean_ms": 0.029,
+      "median_ms": 0.028,
+      "p50": 0.028,
+      "p95": 0.03,
+      "p99": 0.05
+    }
+  ],
+  "estimated_end_to_end_ms": 18.78,
+  "estimated_throughput_qps": 53.2
+}
