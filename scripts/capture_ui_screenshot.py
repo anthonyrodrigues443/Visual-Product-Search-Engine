@@ -60,7 +60,7 @@ def main():
     parser.add_argument("--output", type=Path, default=PROJECT_ROOT / "results")
     args = parser.parse_args()
 
-    tabs = ["browse", "text_search", "experiments"]
+    tabs = ["browse", "describe", "upload", "research"]
     paths = screenshot_app(args.url, args.output, tabs)
     print(f"\n{len(paths)} screenshot(s) written.")
 
