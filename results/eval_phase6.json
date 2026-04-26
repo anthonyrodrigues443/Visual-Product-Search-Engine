@@ -1,0 +1,63 @@
+{
+  "overall": {
+    "R@1": 0.9415774099318404,
+    "R@5": 1.0,
+    "R@10": 1.0,
+    "R@20": 1.0
+  },
+  "per_category": {
+    "denim": {
+      "R@1": 0.9481,
+      "R@5": 1.0,
+      "n_queries": 77
+    },
+    "jackets": {
+      "R@1": 0.9873,
+      "R@5": 1.0,
+      "n_queries": 79
+    },
+    "pants": {
+      "R@1": 0.9306,
+      "R@5": 1.0,
+      "n_queries": 144
+    },
+    "shirts": {
+      "R@1": 0.9752,
+      "R@5": 1.0,
+      "n_queries": 121
+    },
+    "shorts": {
+      "R@1": 0.9051,
+      "R@5": 1.0,
+      "n_queries": 158
+    },
+    "suiting": {
+      "R@1": 1.0,
+      "R@5": 1.0,
+      "n_queries": 3
+    },
+    "sweaters": {
+      "R@1": 0.9865,
+      "R@5": 1.0,
+      "n_queries": 74
+    },
+    "sweatshirts": {
+      "R@1": 0.937,
+      "R@5": 1.0,
+      "n_queries": 127
+    },
+    "tees": {
+      "R@1": 0.9262,
+      "R@5": 1.0,
+      "n_queries": 244
+    }
+  },
+  "config": {
+    "w_text": 0.8,
+    "k": 20,
+    "n_eval": 300
+  },
+  "latency_total_ms": 98.4558999998626,
+  "latency_per_query_ms": 0.09586747809139493,
+  "pipeline": "cat-filter + color-hist-48D + CLIP-B32-text"
+}
