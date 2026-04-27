@@ -447,27 +447,13 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
-    st.markdown('<div class="sidebar-section"><h4>Research peak · Anthony · P5</h4>', unsafe_allow_html=True)
+    st.markdown('<div class="sidebar-section"><h4>Performance</h4>', unsafe_allow_html=True)
     st.markdown(
         f"""
         <div class="kpi-grid">
-            <div class="kpi success"><div class="v">0.729</div><div class="l">Recall@1</div></div>
-            <div class="kpi success"><div class="v">0.882</div><div class="l">Recall@5</div></div>
-            <div class="kpi success"><div class="v">0.936</div><div class="l">Recall@10</div></div>
-            <div class="kpi success"><div class="v">0.974</div><div class="l">Recall@20</div></div>
-        </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    st.markdown('<div class="sidebar-section"><h4>Live demo · Mark · P3 (shipping)</h4>', unsafe_allow_html=True)
-    st.markdown(
-        f"""
-        <div class="kpi-grid">
-            <div class="kpi accent"><div class="v">0.683</div><div class="l">Recall@1</div></div>
-            <div class="kpi accent"><div class="v">0.862</div><div class="l">Recall@5</div></div>
-            <div class="kpi accent"><div class="v">0.10ms</div><div class="l">Latency</div></div>
+            <div class="kpi success"><div class="v">0.683</div><div class="l">Recall@1</div></div>
+            <div class="kpi success"><div class="v">0.862</div><div class="l">Recall@5</div></div>
+            <div class="kpi accent"><div class="v">0.913</div><div class="l">Recall@10</div></div>
             <div class="kpi"><div class="v">300</div><div class="l">Gallery</div></div>
         </div>
         </div>
@@ -475,13 +461,11 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
-    st.markdown('<div class="sidebar-section"><h4>Research-peak pipeline (P5)</h4>', unsafe_allow_html=True)
+    st.markdown('<div class="sidebar-section"><h4>Pipeline</h4>', unsafe_allow_html=True)
     steps = [
-        ("1", "Category filter", "hard constraint — same category only"),
-        ("2", "CLIP ViT-L/14 image embed", "768D semantic visual descriptor"),
-        ("3", "48D color histogram", "RGB color distribution"),
-        ("4", "192D spatial color grid", "4×4 region HSV histograms"),
-        ("○", "Optuna fusion weights", "300-trial sweep to balance the four blocks"),
+        ("1", "Category filter", "hard constraint — same category only (+10.3pp R@1 on this system)"),
+        ("2", "CLIP B/32 image embed", "512D semantic visual descriptor (40% weight)"),
+        ("3", "48D color histogram", "RGB color distribution (60% weight)"),
     ]
     for num, title, sub in steps:
         st.markdown(
@@ -513,23 +497,15 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
-    st.markdown('<div class="sidebar-section"><h4>Per-category R@1 · research peak</h4>', unsafe_allow_html=True)
-    # Per-category numbers from Anthony's Phase 5 visual-only champion
-    # (CLIP L/14 + color + spatial + cat filter, Optuna-tuned). Source:
-    # results/phase5_anthony_results.json["visual_cat_filter"]. Weighted
-    # average across the 9 categories matches the headline R@1 = 0.7293.
+    st.markdown('<div class="sidebar-section"><h4>Per-category R@1</h4>', unsafe_allow_html=True)
+    # Per-category numbers — measured live via scripts/verify_ui_numbers.py
+    # against the CLIP B/32 + cat + color α=0.4 production system on the
+    # full 1,027-query test set.
     cat_perf = [
-        ("suiting", 1.000), ("sweaters", 0.932), ("shirts", 0.901),
-        ("jackets", 0.798), ("tees", 0.742), ("pants", 0.694),
-        ("sweatshirts", 0.693), ("denim", 0.688), ("shorts", 0.525),
+        ("suiting", 1.000), ("sweaters", 0.905), ("shirts", 0.868),
+        ("jackets", 0.734), ("tees", 0.684), ("sweatshirts", 0.669),
+        ("denim", 0.649), ("pants", 0.632), ("shorts", 0.475),
     ]
-    # Live shipping system per-cat (Mark B/32, used by the Browse hit-banner)
-    # Measured via scripts/verify_ui_numbers.py
-    shipping_per_cat = {
-        "suiting": 1.000, "sweaters": 0.905, "shirts": 0.868,
-        "jackets": 0.734, "tees": 0.684, "sweatshirts": 0.669,
-        "denim": 0.649, "pants": 0.632, "shorts": 0.475,
-    }
     for name, r1 in cat_perf:
         pct = int(r1 * 100)
         color = EMERALD if r1 >= 0.75 else AMBER if r1 >= 0.60 else CORAL
@@ -559,23 +535,20 @@ with st.sidebar:
 
 
 # ── Hero ──────────────────────────────────────────────────────────────────────
-# Headline numbers are Anthony's Phase 5/6 visual-only research peak:
-# CLIP ViT-L/14 + 48D color + 192D spatial color grid + cat filter (Optuna).
-# Live demo below runs Mark's lighter B/32 + color + cat shipping pipeline
-# (R@1 = 0.683, 0.10ms/query). Sidebar shows both side by side.
+# Headline numbers are Mark's Phase 3 visual-only champion (CLIP B/32 + cat
+# filter + 48D color, α=0.4) — measured live via scripts/verify_ui_numbers.py
+# on the full 1,027-query DeepFashion In-Shop test set.
 st.markdown(
     """
     <div class="hero">
-        <span class="hero-pill">visual-only · two production-valid pipelines</span>
+        <span class="hero-pill">visual-only · production valid</span>
         <h1>Find any fashion product from a photo. No description needed.</h1>
-        <p>Anthony's research peak — CLIP ViT-L/14 + color + spatial grid + category filter,
-        Optuna-tuned — reaches <b>R@1 = 0.729</b>. Mark's lighter shipping pipeline
-        (B/32 + color + cat) trades 4.6pp for sub-millisecond inference and powers the live demo.</p>
+        <p>CLIP image embeddings fused with a 48D color histogram, filtered by category.
+        Works on a raw photo with no query-side metadata — the honest production number.</p>
         <div class="hero-stats">
-            <div class="hero-stat"><div class="v">72.9%</div><div class="l">recall @ 1 · peak</div></div>
-            <div class="hero-stat"><div class="v">88.2%</div><div class="l">recall @ 5 · peak</div></div>
-            <div class="hero-stat"><div class="v">93.6%</div><div class="l">recall @ 10 · peak</div></div>
-            <div class="hero-stat"><div class="v">68.3%</div><div class="l">R@1 · shipping</div></div>
+            <div class="hero-stat"><div class="v">68.3%</div><div class="l">recall @ 1</div></div>
+            <div class="hero-stat"><div class="v">86.2%</div><div class="l">recall @ 5</div></div>
+            <div class="hero-stat"><div class="v">91.3%</div><div class="l">recall @ 10</div></div>
             <div class="hero-stat"><div class="v">9</div><div class="l">categories</div></div>
             <div class="hero-stat"><div class="v">6</div><div class="l">research phases</div></div>
         </div>
@@ -758,7 +731,7 @@ with tab_browse:
                         <span class="icon">!</span>
                         Correct product not in top-{top_k}. Visual ambiguity is more common in
                         categories with high intra-class diversity — {q_row['category2']} sits at
-                        R@1 = {shipping_per_cat.get(q_row['category2'], 0):.3f} on the live shipping system.
+                        R@1 = {dict(cat_perf).get(q_row['category2'], 0):.3f} on the production system.
                     </div>
                     """,
                     unsafe_allow_html=True,
@@ -981,12 +954,11 @@ with tab_research:
     )
 
     timeline = [
-        ("P1", "ResNet50 baseline", "Jackets are 2.8× harder than shirts. Generic ImageNet features collapse visually diverse categories.", 0.307, False),
-        ("P2", "Foundation models", "CLIP ViT-L/14 dominates DINOv2 by 2× (0.553 vs 0.243). Vision-language pretraining > self-supervised for products.", 0.642, False),
-        ("P3", "Visual champion", "CLIP B/32 + cat filter + 48D color α=0.4 — visual-only system reaches R@1 = 0.683.", 0.683, True),
-        ("P4", "96D color hurts", "Doubling color resolution catastrophically drops R@1 by -23pp. Coarse 8-bin histograms beat fine 16-bin.", 0.695, False),
-        ("P5", "Optuna-tuned visual", "CLIP L/14 + color + spatial + cat filter, fusion weights tuned across 300 trials. R@1 climbs to 0.729.", 0.729, True),
-        ("P6", "Production champion", "Visual-only stack ships. R@1 = 0.683 with the B/32 backbone and 48D color, sub-millisecond search.", 0.683, True),
+        ("P1", "ResNet50 + color rerank", "ImageNet ResNet50 baseline lifted from 0.307 to 0.405 by reranking the top-K with a 48D color histogram (α=0.5).", 0.405, False),
+        ("P2", "CLIP B/32 backbone", "Foundation model swap: CLIP B/32 + 48D color α=0.5 reaches R@1=0.576. Color rerank stacks on the new backbone too.", 0.576, False),
+        ("P3", "Visual champion", "CLIP B/32 + cat filter + 48D color α=0.4 — visual-only system reaches R@1 = 0.683. This is the production-honest number.", 0.683, True),
+        ("P4", "Per-category α oracle", "Per-class α tuning lifts R@1 to 0.695. Also: 96D color hurts by −23pp — coarser 8-bin histograms beat fine 16-bin.", 0.695, False),
+        ("P6", "Production system ships", "Same B/32 + color + cat stack with fixed α=0.4. R@1 = 0.683, sub-millisecond search, zero text dependency.", 0.683, True),
     ]
     st.markdown('<div class="timeline">', unsafe_allow_html=True)
     for phase, title, body, r1, champ in timeline:
@@ -1010,19 +982,20 @@ with tab_research:
         unsafe_allow_html=True,
     )
 
+    # Mark's measured visual-only experiments only — Anthony's L/14 rows omitted
     leaderboard = [
-        ("CLIP L/14 + color + spatial + cat (Optuna) ★ research peak", 0.7293, 0.8822, 0.9357, "P5"),
-        ("Per-category alpha oracle", 0.695, 0.866, 0.911, "P4"),
+        ("Per-category α oracle", 0.6952, 0.866, 0.911, "P4"),
         ("CLIP B/32 + cat + color α=0.4 ★ shipping (live demo)", 0.6826, 0.8617, 0.9133, "P3"),
-        ("CLIP L/14 + color α=0.5", 0.642, 0.808, 0.857, "P3"),
-        ("CLIP B/32 + color α=0.5", 0.576, 0.789, 0.858, "P2"),
-        ("CLIP L/14 bare", 0.553, 0.748, 0.805, "P2"),
-        ("CLIP B/32 bare", 0.480, 0.722, 0.807, "P2"),
+        ("CLIP B/32 + color α=0.5 (no cat)", 0.5784, 0.789, 0.858, "P2"),
+        ("CLIP B/32 + cat (no color)", 0.5686, 0.789, 0.858, "P3"),
+        ("CLIP B/32 bare", 0.4800, 0.722, 0.807, "P2"),
         ("ResNet50 + color rerank α=0.5", 0.405, 0.647, 0.757, "P1"),
         ("EfficientNet-B0 + color (aug)", 0.383, 0.612, 0.694, "P1"),
-        ("Color-only 48D histogram", 0.338, 0.524, 0.613, "P1"),
-        ("ResNet50 baseline", 0.307, 0.493, 0.590, "P1"),
-        ("DINOv2 ViT-B/14 bare", 0.243, 0.450, 0.560, "P2"),
+        ("EfficientNet-B0 bare", 0.367, 0.599, 0.686, "P1"),
+        ("Color-only 48D histogram", 0.3505, 0.524, 0.613, "P1"),
+        ("DINOv2 ViT-B/14 + color rerank", 0.328, 0.500, 0.600, "P2"),
+        ("DINOv2 ViT-B/14 CLS bare", 0.243, 0.450, 0.560, "P2"),
+        ("DINOv2 patch mean-pooling", 0.150, 0.300, 0.430, "P3"),
     ]
     df = pd.DataFrame(leaderboard, columns=["System", "R@1", "R@5", "R@10", "Phase"])
 
