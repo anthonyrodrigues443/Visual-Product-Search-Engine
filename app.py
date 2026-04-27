@@ -463,7 +463,7 @@ with st.sidebar:
 
     st.markdown('<div class="sidebar-section"><h4>Pipeline</h4>', unsafe_allow_html=True)
     steps = [
-        ("1", "Category filter", "hard constraint — same category only (+6.9pp R@1, 0/1027 hurt)"),
+        ("1", "Category filter", "hard constraint — same category only (+10.3pp R@1 on this system)"),
         ("2", "CLIP B/32 image embed", "512D semantic visual descriptor (40% weight)"),
         ("3", "48D color histogram", "RGB color distribution (60% weight)"),
     ]
@@ -489,7 +489,7 @@ with st.sidebar:
                 <div class="head">⚡ Pure-visual signal</div>
                 <div class="body">No text descriptions enter the pipeline at any stage —
                 the system runs on a raw photo with no query-side metadata. CLIP's image
-                encoder carries the most signal (removing it costs −23pp R@1); color
+                encoder carries the most signal (removing it costs −17pp R@1); color
                 histograms add another +11pp on top.</div>
             </div>
         </div>
@@ -498,11 +498,13 @@ with st.sidebar:
     )
 
     st.markdown('<div class="sidebar-section"><h4>Per-category R@1</h4>', unsafe_allow_html=True)
-    # Per-category numbers from Mark's Phase 3 report (CLIP B/32 + cat + color α=0.4)
+    # Per-category numbers — measured live via scripts/verify_ui_numbers.py
+    # against the CLIP B/32 + cat + color α=0.4 production system on the
+    # full 1,027-query test set.
     cat_perf = [
-        ("suiting", 1.000), ("jackets", 0.794), ("denim", 0.741),
-        ("sweaters", 0.722), ("shirts", 0.715), ("pants", 0.668),
-        ("sweatshirts", 0.638), ("tees", 0.633), ("shorts", 0.495),
+        ("suiting", 1.000), ("sweaters", 0.905), ("shirts", 0.868),
+        ("jackets", 0.734), ("tees", 0.684), ("sweatshirts", 0.669),
+        ("denim", 0.649), ("pants", 0.632), ("shorts", 0.475),
     ]
     for name, r1 in cat_perf:
         pct = int(r1 * 100)
@@ -725,8 +727,9 @@ with tab_browse:
                     f"""
                     <div class="hit-banner miss">
                         <span class="icon">!</span>
-                        Correct product not in top-{top_k}. ~31.7% of queries fall here without text —
-                        usually a category with high intra-class visual variance ({q_row['category2']}).
+                        Correct product not in top-{top_k}. Visual ambiguity is more common in
+                        categories with high intra-class diversity — {q_row['category2']} sits at
+                        R@1 = {dict(cat_perf).get(q_row['category2'], 0):.3f} on the production system.
                     </div>
                     """,
                     unsafe_allow_html=True,
@@ -862,7 +865,7 @@ with tab_upload:
             "Category",
             sorted(query_df["category2"].dropna().unique().tolist()),
             key="u_cat",
-            help="Required for the +6.9pp R@1 lift from category filtering.",
+            help="Required for the +10pp R@1 lift from category filtering.",
         )
         upload_k = st.slider("Top-K", 4, 12, 8, key="u_k")
         run_upload = st.button("Find similar", key="run_upload", use_container_width=True)
@@ -1014,12 +1017,15 @@ with tab_research:
         unsafe_allow_html=True,
     )
 
+    # Numbers measured live via scripts/verify_ui_numbers.py on the full
+    # 1,027-query test set. Each row removes one component from the production
+    # champion (cat filter + CLIP B/32 image + 48D color hist, α = 0.4).
     ablation = [
         ("Full: cat filter + CLIP image + color hist", 0.6826, 0.0000, INDIGO),
-        ("Remove category filter", 0.5934, -0.0892, CORAL),
-        ("Remove CLIP image embedding", 0.4512, -0.2314, CORAL),
-        ("Remove color histogram", 0.5687, -0.1139, AMBER),
-        ("Color-only (drop CLIP)", 0.3380, -0.3446, CORAL),
+        ("Remove color histogram (CLIP + cat)", 0.5686, -0.1140, AMBER),
+        ("Remove CLIP image (color + cat)", 0.5131, -0.1695, CORAL),
+        ("Remove category filter (CLIP + color)", 0.5794, -0.1032, CORAL),
+        ("Color-only baseline (no CLIP, no cat)", 0.3505, -0.3321, CORAL),
     ]
     abl_html = "".join(
         f"""
@@ -1047,11 +1053,14 @@ with tab_research:
         <div class="callout" style="margin-top:14px;">
             <div class="head">Visual-only takeaways</div>
             <div class="body">
-                <b>1.</b> CLIP's image encoder carries the most visual signal — removing it costs <b>−23pp</b> R@1.<br>
-                <b>2.</b> Color histograms are the second-strongest visual feature — removing them costs −11pp,
-                even with CLIP intact.<br>
-                <b>3.</b> Category filter is pure upside on top of those: <b>+8.9pp</b> R@1 with zero new features
-                and zero queries hurt across all 1,027 test items.
+                <b>1.</b> CLIP's image encoder carries the most visual signal — removing it costs
+                <b>−17pp</b> R@1 (drops from 0.683 to 0.513).<br>
+                <b>2.</b> Color histograms are the second-strongest visual feature — removing them
+                costs <b>−11pp</b> even with CLIP intact.<br>
+                <b>3.</b> Category filter is pure upside on top of those: <b>+10pp</b> R@1
+                (0.579 → 0.683) with zero new features.<br>
+                <b>4.</b> Color-only retrieval without category filter falls all the way to
+                R@1 = 0.351 — your floor when you can't trust CLIP at all.
             </div>
         </div>
         """,

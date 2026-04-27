@@ -61,7 +61,7 @@ No text encoder is loaded. No product descriptions are read.
 |------|-------|--------|-----|-----|------|------|
 | 1 | P5 | CLIP L/14 + color + spatial + cat (Optuna) | 0.729 | 0.882 | 0.936 | 0.974 |
 | 2 | P4 | Per-category α oracle | 0.695 | 0.866 | 0.911 | — |
-| **3** | **P3** | **Production champion: CLIP B/32 + cat + color α=0.4** | **0.683** | **0.862** | **0.913** | **0.941** |
+| **3** | **P3** | **Production champion: CLIP B/32 + cat + color α=0.4** | **0.683** | **0.862** | **0.913** | **0.970** |
 | 4 | P2 | CLIP L/14 + color α=0.5 | 0.642 | 0.808 | 0.857 | — |
 | 5 | P2 | CLIP B/32 + color α=0.5 | 0.576 | 0.789 | 0.858 | — |
 | 6 | P2 | CLIP ViT-L/14 bare | 0.553 | 0.748 | 0.805 | 0.853 |
@@ -78,34 +78,37 @@ The shipping production system is row 3. The L/14 + spatial variant at row 1 rea
 
 ## Visual-Only Ablation
 
-What each component contributes to the R@1 = 0.683 production champion:
+What each component contributes to the R@1 = 0.683 production champion (measured on the full 1,027-query test set with `scripts/verify_ui_numbers.py`):
 
 | Component removed | R@1 | Δ vs full system |
 |-------------------|-----|------------------|
-| Full: cat + CLIP image + color | 0.683 | — |
-| Remove color histogram | 0.569 | −0.114 |
-| Remove category filter | 0.594 | −0.089 |
-| Remove CLIP image (color-only) | 0.338 | −0.345 |
+| Full: cat + CLIP image + color | 0.6826 | — |
+| Remove color histogram (CLIP + cat) | 0.5686 | −0.114 |
+| Remove category filter (CLIP + color) | 0.5794 | −0.103 |
+| Remove CLIP image (color + cat) | 0.5131 | −0.170 |
+| Color-only baseline (no CLIP, no cat) | 0.3505 | −0.332 |
 
-CLIP's image encoder carries the most signal. Color is the second-strongest visual feature. The category filter is pure upside on top.
+CLIP's image encoder is the strongest single contributor. Color is second. The category filter is pure upside on top of either backbone — the +10pp lift on this system is noticeably larger than the +6.9pp Anthony measured on the L/14 + spatial config in Phase 6.
 
 ---
 
 ## Per-Category Performance (visual-only)
 
-| Category | R@1 | Notes |
-|----------|-----|-------|
-| suiting | 1.000 | very small class, low intra-class variance |
-| jackets | 0.794 | strong silhouettes, distinct cuts |
-| denim | 0.741 | wash + fit are visually distinctive |
-| sweaters | 0.722 | knit textures help |
-| shirts | 0.715 | collars + cuffs help |
-| pants | 0.668 | |
-| sweatshirts | 0.638 | |
-| tees | 0.633 | high intra-class colour variance |
-| **shorts** | **0.495** | extreme intra-category visual diversity (cargo vs denim vs athletic vs linen) |
+Measured on the production champion (CLIP B/32 + cat filter + 48D color, α=0.4):
 
-Shorts are 2× harder than jackets — the same intra-class diversity story Phase 1 found for jackets vs shirts, just sharper.
+| Category | R@1 | n queries | Notes |
+|----------|-----|-----------|-------|
+| suiting | 1.000 | 3 | tiny class, low intra-class variance |
+| sweaters | 0.905 | 74 | knit textures + distinctive silhouettes |
+| shirts | 0.868 | 121 | collars + cuffs help |
+| jackets | 0.734 | 79 | strong silhouettes |
+| tees | 0.684 | 244 | largest class — colour + neckline distinguish well enough |
+| sweatshirts | 0.669 | 127 | |
+| denim | 0.649 | 77 | similar washes and cuts confuse retrieval |
+| pants | 0.632 | 144 | |
+| **shorts** | **0.475** | **158** | extreme intra-category visual diversity (cargo vs denim vs athletic vs linen) |
+
+Shorts are 2× harder than sweaters — same intra-class diversity story Phase 1 found for jackets vs shirts, just sharper.
 
 ---
 
