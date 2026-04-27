@@ -447,13 +447,27 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
-    st.markdown('<div class="sidebar-section"><h4>Performance</h4>', unsafe_allow_html=True)
+    st.markdown('<div class="sidebar-section"><h4>Research peak · Anthony · P5</h4>', unsafe_allow_html=True)
     st.markdown(
         f"""
         <div class="kpi-grid">
-            <div class="kpi success"><div class="v">0.683</div><div class="l">Recall@1</div></div>
-            <div class="kpi success"><div class="v">0.862</div><div class="l">Recall@5</div></div>
-            <div class="kpi accent"><div class="v">0.913</div><div class="l">Recall@10</div></div>
+            <div class="kpi success"><div class="v">0.729</div><div class="l">Recall@1</div></div>
+            <div class="kpi success"><div class="v">0.882</div><div class="l">Recall@5</div></div>
+            <div class="kpi success"><div class="v">0.936</div><div class="l">Recall@10</div></div>
+            <div class="kpi success"><div class="v">0.974</div><div class="l">Recall@20</div></div>
+        </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.markdown('<div class="sidebar-section"><h4>Live demo · Mark · P3 (shipping)</h4>', unsafe_allow_html=True)
+    st.markdown(
+        f"""
+        <div class="kpi-grid">
+            <div class="kpi accent"><div class="v">0.683</div><div class="l">Recall@1</div></div>
+            <div class="kpi accent"><div class="v">0.862</div><div class="l">Recall@5</div></div>
+            <div class="kpi accent"><div class="v">0.10ms</div><div class="l">Latency</div></div>
             <div class="kpi"><div class="v">300</div><div class="l">Gallery</div></div>
         </div>
         </div>
@@ -461,11 +475,13 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
-    st.markdown('<div class="sidebar-section"><h4>Pipeline</h4>', unsafe_allow_html=True)
+    st.markdown('<div class="sidebar-section"><h4>Research-peak pipeline (P5)</h4>', unsafe_allow_html=True)
     steps = [
-        ("1", "Category filter", "hard constraint — same category only (+10.3pp R@1 on this system)"),
-        ("2", "CLIP B/32 image embed", "512D semantic visual descriptor (40% weight)"),
-        ("3", "48D color histogram", "RGB color distribution (60% weight)"),
+        ("1", "Category filter", "hard constraint — same category only"),
+        ("2", "CLIP ViT-L/14 image embed", "768D semantic visual descriptor"),
+        ("3", "48D color histogram", "RGB color distribution"),
+        ("4", "192D spatial color grid", "4×4 region HSV histograms"),
+        ("○", "Optuna fusion weights", "300-trial sweep to balance the four blocks"),
     ]
     for num, title, sub in steps:
         st.markdown(
@@ -497,15 +513,23 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
-    st.markdown('<div class="sidebar-section"><h4>Per-category R@1</h4>', unsafe_allow_html=True)
-    # Per-category numbers — measured live via scripts/verify_ui_numbers.py
-    # against the CLIP B/32 + cat + color α=0.4 production system on the
-    # full 1,027-query test set.
+    st.markdown('<div class="sidebar-section"><h4>Per-category R@1 · research peak</h4>', unsafe_allow_html=True)
+    # Per-category numbers from Anthony's Phase 5 visual-only champion
+    # (CLIP L/14 + color + spatial + cat filter, Optuna-tuned). Source:
+    # results/phase5_anthony_results.json["visual_cat_filter"]. Weighted
+    # average across the 9 categories matches the headline R@1 = 0.7293.
     cat_perf = [
-        ("suiting", 1.000), ("sweaters", 0.905), ("shirts", 0.868),
-        ("jackets", 0.734), ("tees", 0.684), ("sweatshirts", 0.669),
-        ("denim", 0.649), ("pants", 0.632), ("shorts", 0.475),
+        ("suiting", 1.000), ("sweaters", 0.932), ("shirts", 0.901),
+        ("jackets", 0.798), ("tees", 0.742), ("pants", 0.694),
+        ("sweatshirts", 0.693), ("denim", 0.688), ("shorts", 0.525),
     ]
+    # Live shipping system per-cat (Mark B/32, used by the Browse hit-banner)
+    # Measured via scripts/verify_ui_numbers.py
+    shipping_per_cat = {
+        "suiting": 1.000, "sweaters": 0.905, "shirts": 0.868,
+        "jackets": 0.734, "tees": 0.684, "sweatshirts": 0.669,
+        "denim": 0.649, "pants": 0.632, "shorts": 0.475,
+    }
     for name, r1 in cat_perf:
         pct = int(r1 * 100)
         color = EMERALD if r1 >= 0.75 else AMBER if r1 >= 0.60 else CORAL
@@ -535,19 +559,25 @@ with st.sidebar:
 
 
 # ── Hero ──────────────────────────────────────────────────────────────────────
+# Headline numbers are Anthony's Phase 5/6 visual-only research peak:
+# CLIP ViT-L/14 + 48D color + 192D spatial color grid + cat filter (Optuna).
+# Live demo below runs Mark's lighter B/32 + color + cat shipping pipeline
+# (R@1 = 0.683, 0.10ms/query). Sidebar shows both side by side.
 st.markdown(
     """
     <div class="hero">
-        <span class="hero-pill">visual-only · production-valid</span>
+        <span class="hero-pill">visual-only · two production-valid pipelines</span>
         <h1>Find any fashion product from a photo. No description needed.</h1>
-        <p>CLIP image embeddings fused with a 48D color histogram, filtered by category.
-        Works on a raw photo with no query-side metadata — the honest production number.</p>
+        <p>Anthony's research peak — CLIP ViT-L/14 + color + spatial grid + category filter,
+        Optuna-tuned — reaches <b>R@1 = 0.729</b>. Mark's lighter shipping pipeline
+        (B/32 + color + cat) trades 4.6pp for sub-millisecond inference and powers the live demo.</p>
         <div class="hero-stats">
-            <div class="hero-stat"><div class="v">68.3%</div><div class="l">recall @ 1</div></div>
-            <div class="hero-stat"><div class="v">86.2%</div><div class="l">recall @ 5</div></div>
-            <div class="hero-stat"><div class="v">91.3%</div><div class="l">recall @ 10</div></div>
+            <div class="hero-stat"><div class="v">72.9%</div><div class="l">recall @ 1 · peak</div></div>
+            <div class="hero-stat"><div class="v">88.2%</div><div class="l">recall @ 5 · peak</div></div>
+            <div class="hero-stat"><div class="v">93.6%</div><div class="l">recall @ 10 · peak</div></div>
+            <div class="hero-stat"><div class="v">68.3%</div><div class="l">R@1 · shipping</div></div>
             <div class="hero-stat"><div class="v">9</div><div class="l">categories</div></div>
-            <div class="hero-stat"><div class="v">5</div><div class="l">research phases</div></div>
+            <div class="hero-stat"><div class="v">6</div><div class="l">research phases</div></div>
         </div>
     </div>
     """,
@@ -567,11 +597,10 @@ query_embs = load_query_embeddings()
 # ── Result card renderer ──────────────────────────────────────────────────────
 def render_results_grid(response, correct_pid: str | None, n_cols: int = 4,
                         score_labels: tuple[str, str] = ("Visual", "Color")):
-    """Render a grid of result cards.
+    """Render a grid of result cards with per-component score bars.
 
-    The two per-component score labels match what the engine put into the
-    SearchResult — visual_score lives in `text_score` for backwards compat
-    when running visual-only retrieval (see search_engine._search_visual).
+    The two labels map to SearchResult.visual_score (CLIP B/32 image-encoder
+    cosine) and SearchResult.color_score (48D RGB-histogram cosine).
     """
     if not response.results:
         st.info("No results.")
@@ -729,7 +758,7 @@ with tab_browse:
                         <span class="icon">!</span>
                         Correct product not in top-{top_k}. Visual ambiguity is more common in
                         categories with high intra-class diversity — {q_row['category2']} sits at
-                        R@1 = {dict(cat_perf).get(q_row['category2'], 0):.3f} on the production system.
+                        R@1 = {shipping_per_cat.get(q_row['category2'], 0):.3f} on the live shipping system.
                     </div>
                     """,
                     unsafe_allow_html=True,
@@ -982,9 +1011,9 @@ with tab_research:
     )
 
     leaderboard = [
-        ("CLIP L/14 + color + spatial + cat (Optuna)", 0.729, 0.882, 0.974, "P5"),
+        ("CLIP L/14 + color + spatial + cat (Optuna) ★ research peak", 0.7293, 0.8822, 0.9357, "P5"),
         ("Per-category alpha oracle", 0.695, 0.866, 0.911, "P4"),
-        ("CLIP B/32 + cat + color α=0.4 ★ shipping", 0.683, 0.862, 0.913, "P3"),
+        ("CLIP B/32 + cat + color α=0.4 ★ shipping (live demo)", 0.6826, 0.8617, 0.9133, "P3"),
         ("CLIP L/14 + color α=0.5", 0.642, 0.808, 0.857, "P3"),
         ("CLIP B/32 + color α=0.5", 0.576, 0.789, 0.858, "P2"),
         ("CLIP L/14 bare", 0.553, 0.748, 0.805, "P2"),
@@ -1012,7 +1041,7 @@ with tab_research:
     st.dataframe(styled, use_container_width=True, height=470, hide_index=True)
 
     st.markdown(
-        '<div class="section-h" style="margin-top:24px;"><h2>Visual-only ablation</h2>'
+        '<div class="section-h" style="margin-top:24px;"><h2>Visual-only ablation · live shipping pipeline</h2>'
         '<span class="sub">What each component contributes to the R@1 = 0.683 champion</span></div>',
         unsafe_allow_html=True,
     )

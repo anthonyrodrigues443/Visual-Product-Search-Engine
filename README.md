@@ -1,6 +1,11 @@
 # Visual Product Search Engine
 
-**Pure-visual fashion retrieval.** A category-filtered cosine search over CLIP B/32 image embeddings fused with a 48D RGB color histogram. Reaches **R@1 = 0.683** on DeepFashion In-Shop (300 products, 1,027 queries) using only pretrained features and zero fine-tuning. No text, descriptions, tags, or other query-side metadata are consumed at inference time — the system runs on a raw photo.
+**Pure-visual fashion retrieval — two production-valid pipelines.** Across six phases of research, the team measured two visual-only systems worth shipping:
+
+1. **Anthony's research peak (Phase 5/6)** — CLIP ViT-L/14 + 48D color + 192D spatial color grid + category filter, fusion weights tuned across 300 Optuna trials. **R@1 = 0.729 · R@5 = 0.882 · R@10 = 0.936 · R@20 = 0.974** on DeepFashion In-Shop (300 products, 1,027 queries).
+2. **Mark's shipping pipeline (Phase 3)** — CLIP ViT-B/32 + 48D color + category filter, α = 0.4. **R@1 = 0.683 · R@5 = 0.862 · R@10 = 0.913 · R@20 = 0.970**, sub-millisecond search latency on a 300-product gallery, 4× smaller backbone, no spatial features. This is what powers the live Streamlit demo.
+
+Neither pipeline reads product descriptions, tags, or other query-side metadata. Both work on raw pixels with zero fine-tuning.
 
 > **Headline:** Category filter NEVER hurts — 0 of 1,027 queries degraded. Pure upside: +6.9pp R@1 by restricting search to the correct clothing category, because CLIP's embedding space has a near-zero silhouette score (~0.004) and can't naturally separate fashion categories.
 
@@ -59,9 +64,9 @@ No text encoder is loaded. No product descriptions are read.
 
 | Rank | Phase | System | R@1 | R@5 | R@10 | R@20 |
 |------|-------|--------|-----|-----|------|------|
-| 1 | P5 | CLIP L/14 + color + spatial + cat (Optuna) | 0.729 | 0.882 | 0.936 | 0.974 |
+| **1** | **P5** | **★ Research peak: CLIP L/14 + color + spatial + cat (Optuna), Anthony** | **0.729** | **0.882** | **0.936** | **0.974** |
 | 2 | P4 | Per-category α oracle | 0.695 | 0.866 | 0.911 | — |
-| **3** | **P3** | **Production champion: CLIP B/32 + cat + color α=0.4** | **0.683** | **0.862** | **0.913** | **0.970** |
+| **3** | **P3** | **★ Shipping demo: CLIP B/32 + cat + color α=0.4, Mark** | **0.683** | **0.862** | **0.913** | **0.970** |
 | 4 | P2 | CLIP L/14 + color α=0.5 | 0.642 | 0.808 | 0.857 | — |
 | 5 | P2 | CLIP B/32 + color α=0.5 | 0.576 | 0.789 | 0.858 | — |
 | 6 | P2 | CLIP ViT-L/14 bare | 0.553 | 0.748 | 0.805 | 0.853 |
@@ -92,23 +97,22 @@ CLIP's image encoder is the strongest single contributor. Color is second. The c
 
 ---
 
-## Per-Category Performance (visual-only)
+## Per-Category Performance (both systems)
 
-Measured on the production champion (CLIP B/32 + cat filter + 48D color, α=0.4):
+| Category | n queries | Research peak (L/14, Anthony) | Shipping (B/32, Mark) | Δ peak − ship |
+|----------|-----------|-------------------------------|-----------------------|--------------|
+| suiting | 3 | 1.000 | 1.000 | +0.00 |
+| sweaters | 74 | 0.932 | 0.905 | +0.03 |
+| shirts | 121 | 0.901 | 0.868 | +0.03 |
+| jackets | 79 | 0.798 | 0.734 | +0.06 |
+| tees | 244 | 0.742 | 0.684 | +0.06 |
+| pants | 144 | 0.694 | 0.632 | +0.06 |
+| sweatshirts | 127 | 0.693 | 0.669 | +0.02 |
+| denim | 77 | 0.688 | 0.649 | +0.04 |
+| **shorts** | **158** | **0.525** | **0.475** | **+0.05** |
+| **weighted avg** | **1027** | **0.729** | **0.683** | **+0.046** |
 
-| Category | R@1 | n queries | Notes |
-|----------|-----|-----------|-------|
-| suiting | 1.000 | 3 | tiny class, low intra-class variance |
-| sweaters | 0.905 | 74 | knit textures + distinctive silhouettes |
-| shirts | 0.868 | 121 | collars + cuffs help |
-| jackets | 0.734 | 79 | strong silhouettes |
-| tees | 0.684 | 244 | largest class — colour + neckline distinguish well enough |
-| sweatshirts | 0.669 | 127 | |
-| denim | 0.649 | 77 | similar washes and cuts confuse retrieval |
-| pants | 0.632 | 144 | |
-| **shorts** | **0.475** | **158** | extreme intra-category visual diversity (cargo vs denim vs athletic vs linen) |
-
-Shorts are 2× harder than sweaters — same intra-class diversity story Phase 1 found for jackets vs shirts, just sharper.
+The L/14 research peak wins on every category, but never by more than 6pp — the bigger backbone gets a small lift everywhere rather than a breakthrough anywhere. Shorts are the hardest for both systems: cargo vs denim vs athletic vs linen overwhelms colour + texture cues regardless of backbone size.
 
 ---
 
