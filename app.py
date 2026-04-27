@@ -949,7 +949,7 @@ with tab_upload:
 with tab_research:
     st.markdown(
         '<div class="section-h"><h2>Five phases of research, condensed</h2>'
-        '<span class="sub">Anthony × Mark · 32 configurations · the leaderboard plus the surprises</span></div>',
+        '<span class="sub">Mark Rodrigues · 12 visual-only configurations · the leaderboard plus the surprises</span></div>',
         unsafe_allow_html=True,
     )
 
