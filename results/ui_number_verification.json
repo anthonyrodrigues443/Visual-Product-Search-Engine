@@ -1,0 +1,78 @@
+{
+  "n_queries": 1027,
+  "n_gallery": 300,
+  "checks": {
+    "champion": {
+      "label": "champion (cat + CLIP B/32 + color a=0.4)",
+      "R@1": 0.682570593962999,
+      "R@5": 0.8617332035053554,
+      "R@10": 0.9133398247322297,
+      "R@20": 0.9698149951314509,
+      "ui_claim": {
+        "R@1": 0.683,
+        "R@5": 0.862,
+        "R@10": 0.913,
+        "R@20": 0.941
+      }
+    },
+    "per_category_r1": {
+      "denim": 0.6494,
+      "jackets": 0.7342,
+      "pants": 0.6319,
+      "shirts": 0.8678,
+      "shorts": 0.4747,
+      "suiting": 1.0,
+      "sweaters": 0.9054,
+      "sweatshirts": 0.6693,
+      "tees": 0.6844
+    },
+    "per_category_ui_claim": {
+      "suiting": 1.0,
+      "jackets": 0.794,
+      "denim": 0.741,
+      "sweaters": 0.722,
+      "shirts": 0.715,
+      "pants": 0.668,
+      "sweatshirts": 0.638,
+      "tees": 0.633,
+      "shorts": 0.495
+    },
+    "ablation": {
+      "full": {
+        "R@1": 0.682570593962999
+      },
+      "no_cat_filter": {
+        "R@1": 0.5793573515092503
+      },
+      "no_color": {
+        "R@1": 0.5686465433300877
+      },
+      "no_clip": {
+        "R@1": 0.5131450827653359
+      },
+      "color_only_no_cat": {
+        "R@1": 0.3505355404089581
+      },
+      "clip_bare": {
+        "R@1": 0.4800389483933788
+      }
+    },
+    "ablation_ui_claim": {
+      "full": 0.6826,
+      "no_cat_filter": 0.5934,
+      "no_color": 0.5687,
+      "no_clip": 0.338,
+      "color_only_no_cat": null
+    },
+    "leaderboard": {
+      "clip_b32_color_0.5_no_cat": {
+        "R@1": 0.578383641674781,
+        "R@5": 0.759493670886076,
+        "R@10": 0.8149951314508277
+      },
+      "clip_b32_cat_no_color": {
+        "R@1": 0.5686465433300877
+      }
+    }
+  }
+}
