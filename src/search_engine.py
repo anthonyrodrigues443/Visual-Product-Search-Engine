@@ -85,11 +85,22 @@ class ProductSearchEngine:
         self._gallery_loaded = False
 
     def load_gallery(self) -> "ProductSearchEngine":
-        """Load pre-computed gallery embeddings and metadata."""
+        """Load pre-computed gallery embeddings and metadata.
+
+        Loads three parallel views of the gallery so the UI can switch between
+        text-based and pure-visual retrieval at request time:
+
+        * g_text   — CLIP B/32 text encoder of the product description (Phase 5
+                     champion, but requires query-side text — not visual-only)
+        * g_visual — CLIP B/32 image encoder of the gallery photo (visual-only,
+                     Phase 3 champion when fused with color: R@1=0.683)
+        * g_color  — 48D RGB color histogram (visual-only, color match signal)
+        """
         self.gallery_df = pd.read_csv(self.data_proc / "gallery.csv")
         self.gallery_df["category2"] = self.gallery_df["category2"].fillna("unknown")
 
         self.g_text = self._load_normed("clip_b32_text_gallery")
+        self.g_visual = self._load_normed("clip_b32_gallery")
         self.g_color = self._load_normed("color48_gallery")
         self.g_cats = self.gallery_df["category2"].values
         self.g_pids = self.gallery_df["product_id"].values
@@ -204,6 +215,143 @@ class ProductSearchEngine:
             t0=t0,
             w_text=self.w_text,
         )
+
+    # ── Visual-only retrieval (CLIP image embed + color hist, NO text) ────
+    # Production-valid system from Phase 3: works at inference without query
+    # metadata. R@1 = 0.683 on the 1,027-query test set.
+
+    DEFAULT_W_VISUAL = 0.40  # Mark's Phase 3 champion: 40% CLIP image, 60% color
+                             # (R@1=0.683, R@5=0.862, R@10=0.913 on 1,027 queries)
+
+    def search_by_image(
+        self,
+        img: Image.Image,
+        category: Optional[str] = None,
+        k: int = DEFAULT_K,
+        w_visual: float = DEFAULT_W_VISUAL,
+    ) -> SearchResponse:
+        """Pure-visual retrieval: CLIP image embedding fused with color histogram.
+
+        Uses no text at any stage. Production-valid — only requires the query
+        image and (optionally) its category.
+        """
+        assert self._gallery_loaded, "Call load_gallery() first"
+        t0 = time.perf_counter()
+
+        q_visual = self.embed_image(img)
+        q_color = self.extract_color(img)
+        q_color = q_color / np.maximum(np.linalg.norm(q_color), 1e-8)
+
+        return self._search_visual(
+            q_visual=q_visual,
+            q_color=q_color,
+            category=category,
+            k=k,
+            t0=t0,
+            w_visual=w_visual,
+        )
+
+    def search_by_precomputed_visual(
+        self,
+        q_visual: np.ndarray,
+        q_color: np.ndarray,
+        category: Optional[str] = None,
+        k: int = DEFAULT_K,
+        w_visual: float = DEFAULT_W_VISUAL,
+    ) -> SearchResponse:
+        """Visual-only search using pre-computed query embeddings (Browse demo)."""
+        assert self._gallery_loaded, "Call load_gallery() first"
+        t0 = time.perf_counter()
+        return self._search_visual(
+            q_visual=q_visual,
+            q_color=q_color,
+            category=category,
+            k=k,
+            t0=t0,
+            w_visual=w_visual,
+        )
+
+    def search_by_color(
+        self,
+        q_color: np.ndarray,
+        category: Optional[str] = None,
+        k: int = DEFAULT_K,
+    ) -> SearchResponse:
+        """Color-only retrieval (48D RGB histogram). R@1 ≈ 0.34.
+
+        Used by the Color filter tab where the user picks a palette directly.
+        """
+        assert self._gallery_loaded, "Call load_gallery() first"
+        t0 = time.perf_counter()
+        zero_visual = np.zeros(self.g_visual.shape[1], dtype=np.float32)
+        return self._search_visual(
+            q_visual=zero_visual,
+            q_color=q_color,
+            category=category,
+            k=k,
+            t0=t0,
+            w_visual=0.0,  # pure color
+        )
+
+    def _search_visual(
+        self,
+        q_visual: np.ndarray,
+        q_color: np.ndarray,
+        category: Optional[str],
+        k: int,
+        t0: float,
+        w_visual: float,
+    ) -> SearchResponse:
+        if category and category in self.CATEGORIES:
+            mask = self.g_cats == category
+            cidx = np.where(mask)[0]
+        else:
+            cidx = np.arange(len(self.g_cats))
+            category = "all"
+
+        g_visual_c = self.g_visual[cidx]
+        g_color_c = self.g_color[cidx]
+
+        visual_scores = (
+            g_visual_c @ q_visual if np.any(q_visual != 0) else np.zeros(len(cidx))
+        )
+        color_scores = (
+            g_color_c @ q_color if np.any(q_color != 0) else np.zeros(len(cidx))
+        )
+
+        combined = w_visual * visual_scores + (1 - w_visual) * color_scores
+        top_k_local = np.argsort(-combined)[:k]
+        top_k_global = cidx[top_k_local]
+
+        results = []
+        for rank, (local_i, global_i) in enumerate(zip(top_k_local, top_k_global)):
+            row = self.gallery_df.iloc[global_i]
+            img_path = self.image_dir / f"{row['item_id']}.jpg"
+            # Reuse text_score field for the visual (CLIP-image) score so the
+            # SearchResult schema and downstream UI stay backwards-compatible.
+            results.append(SearchResult(
+                rank=rank + 1,
+                item_id=row["item_id"],
+                product_id=row["product_id"],
+                category=row["category2"],
+                color=str(row.get("color", "")),
+                description=str(row.get("description", "")),
+                text_score=float(visual_scores[local_i]),
+                color_score=float(color_scores[local_i]),
+                combined_score=float(combined[local_i]),
+                image_path=img_path if img_path.exists() else None,
+            ))
+
+        latency_ms = (time.perf_counter() - t0) * 1000
+        return SearchResponse(
+            results=results,
+            query_category=category,
+            n_gallery_candidates=len(cidx),
+            latency_ms=latency_ms,
+            pipeline="cat-filter + CLIP-B32-image + color-hist-48D",
+        )
+
+    # ── Text-based retrieval (kept for backward compat / research tab) ────
 
     def _search(
         self,
