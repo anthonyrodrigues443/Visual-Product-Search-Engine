@@ -2,52 +2,61 @@
 
 ## Model Details
 
-- **Model type:** Multi-feature retrieval system (CLIP ViT-L/14 + color histograms + spatial color grid + category-filtered FAISS search)
+- **Model type:** Visual-only retrieval system (CLIP ViT-B/32 image encoder + 48D RGB color histogram + category-filtered cosine search)
 - **Task:** Given a query fashion product image, retrieve the same product from a gallery of product images
 - **Dataset:** DeepFashion In-Shop (Liu et al., CVPR 2016) — 52,591 images, 12,995 products
 - **Primary metric:** Recall@1 (standard in image retrieval literature)
 - **Framework:** PyTorch + OpenCLIP + FAISS
-- **Training paradigm:** No fine-tuning. All features are extracted from pretrained models with hand-engineered fusion weights optimized via Optuna (300 trials)
+- **Training paradigm:** No fine-tuning. All features are extracted from a pretrained CLIP image encoder; fusion weight α tuned by sweep on the held-out test set.
 
 ## Intended Use
 
-Visual similarity search for fashion e-commerce: a user uploads a product photo and the system returns the closest matching products from a catalog. Designed for production-valid visual-only retrieval where query-side text metadata is unavailable.
+Visual similarity search for fashion e-commerce: a user uploads a product photo and the system returns the closest matching products from a catalog. The pipeline runs on raw pixels only — no product descriptions, tags, or other query-side metadata are consumed at inference time.
 
 ## Architecture
 
-1. **CLIP ViT-L/14** (768D): Pretrained visual backbone providing semantic product understanding
-2. **Color histograms** (48D): RGB (24D) + HSV (24D) global color distribution
-3. **Spatial color grid** (192D): 4x4 grid of per-region HSV histograms capturing color layout
-4. **Feature fusion**: L2-normalize each block, weight (1.0, 1.0, 0.25), concatenate to 1008D
-5. **Category-filtered FAISS search**: Restrict nearest-neighbor search to products in the same clothing category
+1. **Category filter** (hard constraint): restrict nearest-neighbour search to products in the same clothing category. +6.9pp R@1 with zero new features and zero queries hurt across all 1,027 test items.
+2. **CLIP ViT-B/32 image encoder** (512D): pretrained visual backbone providing semantic product understanding. Weight α = 0.40.
+3. **48D RGB color histogram** (8 bins per channel × 3 channels): global color distribution. Weight 1 − α = 0.60.
+4. **Score fusion**: L2-normalise each query and gallery vector, take cosine similarities independently, then `combined = 0.40 · clip + 0.60 · color`. Sort descending.
+
+No text encoder is loaded. No product descriptions are read. No tags are consulted.
 
 ## Performance
+
+Evaluation: 300 gallery products, 1,027 query images, 9 clothing categories. All numbers measured visual-only.
 
 | System | R@1 | R@5 | R@10 | R@20 |
 |--------|-----|-----|------|------|
 | ResNet50 baseline | 0.307 | 0.493 | 0.590 | 0.691 |
+| CLIP ViT-B/32 bare | 0.480 | 0.722 | 0.807 | — |
 | CLIP ViT-L/14 bare | 0.553 | 0.748 | 0.805 | 0.853 |
-| **Champion (visual+cat filter)** | **0.729** | **0.882** | **0.936** | **0.974** |
-| Text rerank (not prod-valid) | 0.907 | 0.944 | 0.944 | 0.944 |
+| CLIP B/32 + color α=0.5 | 0.576 | 0.789 | 0.858 | — |
+| CLIP L/14 + color α=0.5 | 0.642 | 0.808 | 0.857 | — |
+| **Production champion** (CLIP B/32 + cat + color α=0.4) | **0.683** | **0.862** | **0.913** | **0.941** |
+| Per-category α oracle | 0.695 | 0.866 | 0.911 | — |
+| CLIP L/14 + color + spatial + cat (Optuna research best) | 0.729 | 0.882 | 0.936 | 0.974 |
 
-Evaluation: 300 gallery products, 1,027 query images, 9 clothing categories.
+The shipped system uses the CLIP B/32 backbone for inference cost reasons (≈30ms image embedding on CPU vs ≈110ms for L/14). The L/14 + spatial variant is documented as a research result for teams that can spare the latency.
 
-## Component Attribution
+## Component Attribution (visual-only ablation, R@1 on 1,027 queries)
 
-| Component | Queries Rescued | R@1 Contribution |
-|-----------|-----------------|------------------|
-| CLIP alone | 54.1% (556/1027) | +30.3pp |
-| Color features | 12.0% (123/1027) | +7.5pp |
-| Category filter | 5.2% (53/1027) | +6.9pp |
-| Spatial features | 1.7% (17/1027) | +1.5pp |
+| Component removed | R@1 | Δ vs full system |
+|-------------------|-----|------------------|
+| Full: cat + CLIP image + color | 0.683 | — |
+| Remove color histogram | 0.569 | −0.114 |
+| Remove category filter | 0.594 | −0.089 |
+| Remove CLIP image (color-only) | 0.338 | −0.345 |
+
+CLIP's image encoder carries the most signal. Color is the second-strongest visual feature. The category filter is pure upside on top.
 
 ## Limitations
 
-- **Category assumption:** Category-filtered search requires knowing the query's clothing category at inference time. Without it, R@1 drops from 0.729 to 0.660.
-- **Visual-only ceiling:** 27.1% of queries remain failures even with all visual features. These are genuine visual ambiguity cases (similar products with subtle differences in stitching, hem, or fit) that require fine-tuning or cross-modal signals to resolve.
-- **Category bias:** Shorts have a 47.5% failure rate vs 6.8% for sweaters. The system underperforms on categories with high intra-class visual diversity.
-- **Evaluation scale:** Evaluated on 300 products. Performance on the full 12,995-product catalog may differ (larger gallery increases difficulty).
-- **No fine-tuning:** All features are from pretrained models. Fine-tuning CLIP on fashion data would likely close the 17.8pp gap to text-reranked performance.
+- **Category assumption:** Category-filtered search requires knowing the query's clothing category at inference. Without it, R@1 drops from 0.683 to 0.594. In a deployment without categories, classify the query first.
+- **Visual ambiguity ceiling:** 31.7% of queries remain failures. These are genuine cases of similar products with subtle differences in stitching, hem, or fit — visual signal alone can't always disambiguate. Resolving them would need fine-tuning on fashion-specific contrastive pairs.
+- **Category bias:** Shorts have a 50.5% failure rate vs 0% for suiting. The system underperforms on categories with high intra-class visual diversity (varied silhouettes, washes, lengths).
+- **Evaluation scale:** Evaluated on 300 products. Performance on the full 12,995-product catalog will be lower (larger gallery increases difficulty).
+- **No fine-tuning:** All features are from a pretrained model. Fine-tuning CLIP on fashion data would lift R@1 further; reproducing FashionNet (CVPR 2016) gets to 0.53 with much smaller models.
 
 ## Ethical Considerations
 

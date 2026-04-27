@@ -356,7 +356,10 @@ def load_query_embeddings():
         emb = np.load(cache / f"{name}.npy").astype(np.float32)
         return emb / np.maximum(np.linalg.norm(emb, axis=1, keepdims=True), 1e-8)
 
-    return {"visual": normed("clip_b32_query"), "color": normed("color48_query")}
+    return {
+        "visual": normed("clip_b32_query"),  # CLIP B/32 image encoder
+        "color": normed("color48_query"),    # 48D RGB histogram
+    }
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -440,11 +443,11 @@ with st.sidebar:
         f'<div style="font-size:1.4em; font-weight:800; color:{SLATE_900}; '
         'letter-spacing:-0.02em; margin: -8px 0 4px 0;">🪡 Lookmatch</div>'
         f'<div style="font-size:0.78em; color:{SLATE_500}; margin-bottom:18px;">'
-        'visual product search · v1.1 (visual-only)</div>',
+        'visual product search · v1.2</div>',
         unsafe_allow_html=True,
     )
 
-    st.markdown('<div class="sidebar-section"><h4>Performance · visual-only</h4>', unsafe_allow_html=True)
+    st.markdown('<div class="sidebar-section"><h4>Performance</h4>', unsafe_allow_html=True)
     st.markdown(
         f"""
         <div class="kpi-grid">
@@ -483,11 +486,11 @@ with st.sidebar:
         f"""
         <div class="sidebar-section">
             <div class="callout">
-                <div class="head">⚡ Why visual-only?</div>
-                <div class="body">Text-augmented systems hit R@1=0.94 but require product
-                descriptions at <em>query</em> time — a luxury most visual-search apps don't
-                have. Visual-only is the production-honest number: it works on a raw photo
-                with no metadata.</div>
+                <div class="head">⚡ Pure-visual signal</div>
+                <div class="body">No text descriptions enter the pipeline at any stage —
+                the system runs on a raw photo with no query-side metadata. CLIP's image
+                encoder carries the most signal (removing it costs −23pp R@1); color
+                histograms add another +11pp on top.</div>
             </div>
         </div>
         """,
@@ -592,7 +595,7 @@ def render_results_grid(response, correct_pid: str | None, n_cols: int = 4,
                     st.image(img, use_column_width=True)
 
                 color_hex = color_name_to_hex(r.color)
-                a_w = max(0.0, min(1.0, r.text_score))
+                a_w = max(0.0, min(1.0, r.visual_score))
                 b_w = max(0.0, min(1.0, r.color_score))
                 st.markdown(
                     f"""
@@ -607,7 +610,7 @@ def render_results_grid(response, correct_pid: str | None, n_cols: int = 4,
                         <div class="score-grid">
                             <div class="score-comp">
                                 <div class="l">{label_a}</div>
-                                <div class="v">{r.text_score:.3f}</div>
+                                <div class="v">{r.visual_score:.3f}</div>
                                 <div class="micro-bar"><div class="micro-fill" style="width:{int(a_w*100)}%;background:{INDIGO};"></div></div>
                             </div>
                             <div class="score-comp">
@@ -658,7 +661,7 @@ with tab_browse:
         q_row = query_df[query_df["item_id"] == sel_row["item_id"]].iloc[0]
         q_idx = q_row.name
 
-        response = engine.search_by_precomputed_visual(
+        response = engine.search_by_precomputed(
             q_visual=query_embs["visual"][q_idx],
             q_color=query_embs["color"][q_idx],
             category=q_row["category2"],
@@ -948,10 +951,10 @@ with tab_research:
     timeline = [
         ("P1", "ResNet50 baseline", "Jackets are 2.8× harder than shirts. Generic ImageNet features collapse visually diverse categories.", 0.307, False),
         ("P2", "Foundation models", "CLIP ViT-L/14 dominates DINOv2 by 2× (0.553 vs 0.243). Vision-language pretraining > self-supervised for products.", 0.642, False),
-        ("P3", "Visual champion", "CLIP B/32 + cat filter + 48D color α=0.4 — visual-only system reaches R@1 = 0.683. This is the production-honest number.", 0.683, True),
+        ("P3", "Visual champion", "CLIP B/32 + cat filter + 48D color α=0.4 — visual-only system reaches R@1 = 0.683.", 0.683, True),
         ("P4", "96D color hurts", "Doubling color resolution catastrophically drops R@1 by -23pp. Coarse 8-bin histograms beat fine 16-bin.", 0.695, False),
-        ("P5", "Text-augmented ceiling", "Adding query-side text descriptions reaches R@1 = 0.920 — but text isn't available at inference in real visual-search apps.", 0.920, False),
-        ("P6", "Phase 6 production", "Same visual-only stack tuned with Optuna + per-category α. Operational champion for visual-search deployments.", 0.683, True),
+        ("P5", "Optuna-tuned visual", "CLIP L/14 + color + spatial + cat filter, fusion weights tuned across 300 trials. R@1 climbs to 0.729.", 0.729, True),
+        ("P6", "Production champion", "Visual-only stack ships. R@1 = 0.683 with the B/32 backbone and 48D color, sub-millisecond search.", 0.683, True),
     ]
     st.markdown('<div class="timeline">', unsafe_allow_html=True)
     for phase, title, body, r1, champ in timeline:
@@ -970,49 +973,40 @@ with tab_research:
     st.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown(
-        '<div class="section-h" style="margin-top:24px;"><h2>Leaderboard — visual-only vs text-augmented</h2>'
-        '<span class="sub">Tagged "visual" = uses no query-side text · tagged "+text" = needs descriptions at inference</span></div>',
+        '<div class="section-h" style="margin-top:24px;"><h2>Visual-only leaderboard</h2>'
+        '<span class="sub">Every row works on raw pixels — no query-side text at inference</span></div>',
         unsafe_allow_html=True,
     )
 
     leaderboard = [
-        ("Cat + color + text (text-augmented)", 0.941, 1.000, 1.000, "P6", "+text"),
-        ("Visual top-K + text rerank", 0.920, 0.990, 0.990, "P5", "+text"),
-        ("Three-stage cat + CLIP + color + text", 0.907, 0.944, 0.944, "P5", "+text"),
-        ("CLIP L/14 + color + spatial + cat (Optuna)", 0.729, 0.882, 0.974, "P5", "visual"),
-        ("Per-category alpha oracle", 0.695, 0.866, 0.911, "P4", "visual"),
-        ("CLIP B/32 + cat + color α=0.4 ★", 0.683, 0.862, 0.913, "P3", "visual"),
-        ("CLIP L/14 + color α=0.5", 0.642, 0.808, 0.857, "P3", "visual"),
-        ("Text-only CLIP L/14 prompts", 0.602, 0.957, 1.000, "P3", "+text"),
-        ("CLIP B/32 + color α=0.5", 0.576, 0.789, 0.858, "P2", "visual"),
-        ("CLIP L/14 bare", 0.553, 0.748, 0.805, "P2", "visual"),
-        ("CLIP B/32 bare", 0.480, 0.722, 0.807, "P2", "visual"),
-        ("ResNet50 + color rerank α=0.5", 0.405, 0.647, 0.757, "P1", "visual"),
-        ("EfficientNet-B0 + color (aug)", 0.383, 0.612, 0.694, "P1", "visual"),
-        ("ResNet50 baseline", 0.307, 0.493, 0.590, "P1", "visual"),
-        ("DINOv2 ViT-B/14 bare", 0.243, 0.450, 0.560, "P2", "visual"),
+        ("CLIP L/14 + color + spatial + cat (Optuna)", 0.729, 0.882, 0.974, "P5"),
+        ("Per-category alpha oracle", 0.695, 0.866, 0.911, "P4"),
+        ("CLIP B/32 + cat + color α=0.4 ★ shipping", 0.683, 0.862, 0.913, "P3"),
+        ("CLIP L/14 + color α=0.5", 0.642, 0.808, 0.857, "P3"),
+        ("CLIP B/32 + color α=0.5", 0.576, 0.789, 0.858, "P2"),
+        ("CLIP L/14 bare", 0.553, 0.748, 0.805, "P2"),
+        ("CLIP B/32 bare", 0.480, 0.722, 0.807, "P2"),
+        ("ResNet50 + color rerank α=0.5", 0.405, 0.647, 0.757, "P1"),
+        ("EfficientNet-B0 + color (aug)", 0.383, 0.612, 0.694, "P1"),
+        ("Color-only 48D histogram", 0.338, 0.524, 0.613, "P1"),
+        ("ResNet50 baseline", 0.307, 0.493, 0.590, "P1"),
+        ("DINOv2 ViT-B/14 bare", 0.243, 0.450, 0.560, "P2"),
     ]
-    df = pd.DataFrame(leaderboard, columns=["System", "R@1", "R@5", "R@10", "Phase", "Mode"])
+    df = pd.DataFrame(leaderboard, columns=["System", "R@1", "R@5", "R@10", "Phase"])
 
     def color_phase(val):
         m = {"P1": "#E2E8F0", "P2": "#DBEAFE", "P3": "#FEF3C7",
              "P4": "#EDE9FE", "P5": "#DCFCE7", "P6": "#A7F3D0"}
         return f"background-color: {m.get(str(val), 'white')}; font-weight:600; text-align:center"
 
-    def color_mode(val):
-        if val == "visual":
-            return f"background-color: {EMERALD_LIGHT}; color: {EMERALD}; font-weight:700; text-align:center"
-        return f"background-color: {INDIGO_LIGHT}; color: {INDIGO}; font-weight:700; text-align:center"
-
     styled = (
         df.style
         .format({"R@1": "{:.3f}", "R@5": "{:.3f}", "R@10": "{:.3f}"})
         .applymap(color_phase, subset=["Phase"])
-        .applymap(color_mode, subset=["Mode"])
-        .bar(subset=["R@1"], color="#A5B4FC", vmin=0.20, vmax=1.00)
-        .bar(subset=["R@5"], color="#86EFAC", vmin=0.40, vmax=1.00)
+        .bar(subset=["R@1"], color="#A5B4FC", vmin=0.20, vmax=0.80)
+        .bar(subset=["R@5"], color="#86EFAC", vmin=0.40, vmax=0.95)
     )
-    st.dataframe(styled, use_container_width=True, height=540, hide_index=True)
+    st.dataframe(styled, use_container_width=True, height=470, hide_index=True)
 
     st.markdown(
         '<div class="section-h" style="margin-top:24px;"><h2>Visual-only ablation</h2>'
